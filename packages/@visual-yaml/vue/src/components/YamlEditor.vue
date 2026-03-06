@@ -1,69 +1,76 @@
 <script setup lang="ts">
-import { shallowRef, computed,watch, onMounted, onUnmounted, type CSSProperties } from "vue";
-import type { YamlValue, YamlSchema } from "@visual-yaml/core";
 import { DEFAULT_CSS_VARS } from "@internal/ui";
-import VisualYaml from "./VisualYaml.vue";
-import TreeView from "./TreeView.vue";
+import type { YamlSchema, YamlValue } from "@visual-yaml/core";
+import {
+	type CSSProperties,
+	computed,
+	onMounted,
+	onUnmounted,
+	shallowRef,
+	watch,
+} from "vue";
 import FormView from "./FormView.vue";
 import SearchBar from "./SearchBar.vue";
+import TreeView from "./TreeView.vue";
+import VisualYaml from "./VisualYaml.vue";
 
 const props = withDefaults(
-  defineProps<{
-    value?: YamlValue;
-    defaultValue?: YamlValue;
-    onChange?: (value: YamlValue) => void;
-    schema?: YamlSchema | null;
-    height?: string | number;
-    width?: string | number;
-    class?: string;
-    style?: Record<string, string>;
-    readOnly?: boolean;
-    treeShowValues?: boolean;
-    treeShowCounts?: boolean;
-    editorShowDescriptions?: boolean;
-    editorShowCounts?: boolean;
-    sidebarOpen?: boolean;
-  }>(),
-  {
-    schema: null,
-    height: "100%",
-    width: "100%",
-    readOnly: false,
-    treeShowValues: true,
-    treeShowCounts: false,
-    editorShowDescriptions: false,
-    editorShowCounts: false,
-    sidebarOpen: true,
-  },
+	defineProps<{
+		value?: YamlValue;
+		defaultValue?: YamlValue;
+		onChange?: (value: YamlValue) => void;
+		schema?: YamlSchema | null;
+		height?: string | number;
+		width?: string | number;
+		class?: string;
+		style?: Record<string, string>;
+		readOnly?: boolean;
+		treeShowValues?: boolean;
+		treeShowCounts?: boolean;
+		editorShowDescriptions?: boolean;
+		editorShowCounts?: boolean;
+		sidebarOpen?: boolean;
+	}>(),
+	{
+		schema: null,
+		height: "100%",
+		width: "100%",
+		readOnly: false,
+		treeShowValues: true,
+		treeShowCounts: false,
+		editorShowDescriptions: false,
+		editorShowCounts: false,
+		sidebarOpen: true,
+	},
 );
 
 const emit = defineEmits<{
-  change: [value: YamlValue];
+	change: [value: YamlValue];
 }>();
 
 const isControlled = props.value !== undefined;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const currentValue = shallowRef<any>(
-  isControlled ? props.value : (props.defaultValue ?? {}),
+	isControlled ? props.value : (props.defaultValue ?? {}),
 );
 const editorKey = shallowRef(0);
 
 watch(
-  () => props.value,
-  (val) => {
-    if (isControlled && val !== currentValue.value) {
-      currentValue.value = val as YamlValue;
-      editorKey.value++;
-    }
-  },
+	() => props.value,
+	(val) => {
+		if (isControlled && val !== currentValue.value) {
+			currentValue.value = val as YamlValue;
+			editorKey.value++;
+		}
+	},
 );
 
 function handleChange(newValue: YamlValue) {
-  currentValue.value = newValue;
-  if (!props.readOnly) {
-    emit("change", newValue);
-    props.onChange?.(newValue);
-  }
+	currentValue.value = newValue;
+	if (!props.readOnly) {
+		emit("change", newValue);
+		props.onChange?.(newValue);
+	}
 }
 
 // Layout state
@@ -77,56 +84,56 @@ let startWidth = 0;
 let observer: ResizeObserver | null = null;
 
 function checkWidth() {
-  if (containerRef.value) {
-    isNarrow.value = containerRef.value.offsetWidth < 500;
-  }
+	if (containerRef.value) {
+		isNarrow.value = containerRef.value.offsetWidth < 500;
+	}
 }
 
 onMounted(() => {
-  checkWidth();
-  if (containerRef.value) {
-    observer = new ResizeObserver(checkWidth);
-    observer.observe(containerRef.value);
-  }
+	checkWidth();
+	if (containerRef.value) {
+		observer = new ResizeObserver(checkWidth);
+		observer.observe(containerRef.value);
+	}
 });
 
 onUnmounted(() => {
-  observer?.disconnect();
+	observer?.disconnect();
 });
 
 function handleMouseDown(e: MouseEvent) {
-  dragging = true;
-  startX = e.clientX;
-  startWidth = sidebarWidth.value;
-  document.body.style.cursor = "col-resize";
-  document.body.style.userSelect = "none";
+	dragging = true;
+	startX = e.clientX;
+	startWidth = sidebarWidth.value;
+	document.body.style.cursor = "col-resize";
+	document.body.style.userSelect = "none";
 
-  function handleMouseMove(ev: MouseEvent) {
-    if (!dragging) return;
-    const delta = ev.clientX - startX;
-    sidebarWidth.value = Math.max(180, Math.min(600, startWidth + delta));
-  }
+	function handleMouseMove(ev: MouseEvent) {
+		if (!dragging) return;
+		const delta = ev.clientX - startX;
+		sidebarWidth.value = Math.max(180, Math.min(600, startWidth + delta));
+	}
 
-  function handleMouseUp() {
-    dragging = false;
-    document.body.style.cursor = "";
-    document.body.style.userSelect = "";
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
-  }
+	function handleMouseUp() {
+		dragging = false;
+		document.body.style.cursor = "";
+		document.body.style.userSelect = "";
+		document.removeEventListener("mousemove", handleMouseMove);
+		document.removeEventListener("mouseup", handleMouseUp);
+	}
 
-  document.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
+	document.addEventListener("mousemove", handleMouseMove);
+	document.addEventListener("mouseup", handleMouseUp);
 }
 
-const containerStyle  = computed<CSSProperties>(() => ({
-  height: typeof props.height === "number" ? `${props.height}px` : props.height,
-  width: typeof props.width === "number" ? `${props.width}px` : props.width,
-  display: "flex",
-  flexDirection: "column",
-  overflow: "hidden",
-  ...DEFAULT_CSS_VARS,
-  ...(props.style ?? {}),
+const containerStyle = computed<CSSProperties>(() => ({
+	height: typeof props.height === "number" ? `${props.height}px` : props.height,
+	width: typeof props.width === "number" ? `${props.width}px` : props.width,
+	display: "flex",
+	flexDirection: "column",
+	overflow: "hidden",
+	...DEFAULT_CSS_VARS,
+	...(props.style ?? {}),
 }));
 </script>
 

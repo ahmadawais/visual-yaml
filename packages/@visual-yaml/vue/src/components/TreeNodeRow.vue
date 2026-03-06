@@ -1,130 +1,129 @@
 <script setup lang="ts">
-import { shallowRef } from "vue";
-import type { TreeNode } from "@visual-yaml/core";
-import { useStudio } from "../composables/use-studio";
 import { getDisplayKey, setMultiDragImage } from "@internal/ui";
+import type { TreeNode } from "@visual-yaml/core";
+import { shallowRef } from "vue";
 import type { DragState } from "../composables/use-drag-drop";
+import { useStudio } from "../composables/use-studio";
 
 // Self-import for recursive usage
 import TreeNodeRow from "./TreeNodeRow.vue";
 
 const props = defineProps<{
-  node: TreeNode;
-  depth: number;
-  dragState: DragState;
-  showValues: boolean;
-  showCounts: boolean;
-  isFocused: boolean;
+	node: TreeNode;
+	depth: number;
+	dragState: DragState;
+	showValues: boolean;
+	showCounts: boolean;
+	isFocused: boolean;
 }>();
 
 const emit = defineEmits<{
-  dragStart: [nodeId: string];
-  dragOver: [nodeId: string, position: "before" | "after"];
-  dragEnd: [];
-  drop: [];
-  contextMenu: [e: MouseEvent, node: TreeNode];
-  selectRange: [nodeId: string];
+	dragStart: [nodeId: string];
+	dragOver: [nodeId: string, position: "before" | "after"];
+	dragEnd: [];
+	drop: [];
+	contextMenu: [e: MouseEvent, node: TreeNode];
+	selectRange: [nodeId: string];
 }>();
 
 const { state, actions } = useStudio();
 const hovered = shallowRef(false);
 
 function isSelected() {
-  return state.selectedNodeIds.value.has(props.node.id);
+	return state.selectedNodeIds.value.has(props.node.id);
 }
 function isExpanded() {
-  return state.expandedNodeIds.value.has(props.node.id);
+	return state.expandedNodeIds.value.has(props.node.id);
 }
 
-const isContainer =
-  props.node.type === "object" || props.node.type === "array";
+const isContainer = props.node.type === "object" || props.node.type === "array";
 const isRoot = props.node.parentId === null;
 
 function isSearchMatch() {
-  return state.searchMatchNodeIds.value.has(props.node.id);
+	return state.searchMatchNodeIds.value.has(props.node.id);
 }
 function isActiveMatch() {
-  return (
-    state.searchMatches.value.length > 0 &&
-    state.searchMatches.value[state.searchMatchIndex.value]?.nodeId ===
-      props.node.id
-  );
+	return (
+		state.searchMatches.value.length > 0 &&
+		state.searchMatches.value[state.searchMatchIndex.value]?.nodeId ===
+			props.node.id
+	);
 }
 
 function displayValue(): string {
-  if (isContainer) {
-    return props.node.type === "array"
-      ? `[${props.node.children.length}]`
-      : `{${props.node.children.length}}`;
-  }
-  if (props.node.value === null) return "null";
-  if (typeof props.node.value === "string") return props.node.value;
-  return String(props.node.value);
+	if (isContainer) {
+		return props.node.type === "array"
+			? `[${props.node.children.length}]`
+			: `{${props.node.children.length}}`;
+	}
+	if (props.node.value === null) return "null";
+	if (typeof props.node.value === "string") return props.node.value;
+	return String(props.node.value);
 }
 
 function handleDragOver(e: DragEvent) {
-  e.preventDefault();
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-  const midY = rect.top + rect.height / 2;
-  const position = e.clientY < midY ? "before" : "after";
-  emit("dragOver", props.node.id, position);
+	e.preventDefault();
+	const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+	const midY = rect.top + rect.height / 2;
+	const position = e.clientY < midY ? "before" : "after";
+	emit("dragOver", props.node.id, position);
 }
 
 function getBorderTopColor() {
-  if (
-    props.dragState.dropTargetNodeId === props.node.id &&
-    props.dragState.dropPosition === "before"
-  ) {
-    return "var(--vj-accent, #007acc)";
-  }
-  return "transparent";
+	if (
+		props.dragState.dropTargetNodeId === props.node.id &&
+		props.dragState.dropPosition === "before"
+	) {
+		return "var(--vj-accent, #007acc)";
+	}
+	return "transparent";
 }
 
 function getBorderBottomColor() {
-  if (
-    props.dragState.dropTargetNodeId === props.node.id &&
-    props.dragState.dropPosition === "after"
-  ) {
-    return "var(--vj-accent, #007acc)";
-  }
-  return "transparent";
+	if (
+		props.dragState.dropTargetNodeId === props.node.id &&
+		props.dragState.dropPosition === "after"
+	) {
+		return "var(--vj-accent, #007acc)";
+	}
+	return "transparent";
 }
 
 function getRowBg() {
-  const sel = isSelected();
-  const active = isActiveMatch();
-  const match = isSearchMatch();
-  const hov = hovered.value;
-  if (sel) {
-    return props.isFocused
-      ? "var(--vj-bg-selected, #2a5a1e)"
-      : "var(--vj-bg-selected-muted, var(--vj-bg-hover, #2a2d2e))";
-  }
-  if (active) return "var(--vj-bg-match-active, #51502b)";
-  if (match) return "var(--vj-bg-match, #3a3520)";
-  if (hov) return "var(--vj-bg-hover, #2a2d2e)";
-  return "transparent";
+	const sel = isSelected();
+	const active = isActiveMatch();
+	const match = isSearchMatch();
+	const hov = hovered.value;
+	if (sel) {
+		return props.isFocused
+			? "var(--vj-bg-selected, #2a5a1e)"
+			: "var(--vj-bg-selected-muted, var(--vj-bg-hover, #2a2d2e))";
+	}
+	if (active) return "var(--vj-bg-match-active, #51502b)";
+	if (match) return "var(--vj-bg-match, #3a3520)";
+	if (hov) return "var(--vj-bg-hover, #2a2d2e)";
+	return "transparent";
 }
 
 function handleClick(e: MouseEvent) {
-  if (e.shiftKey) {
-    emit("selectRange", props.node.id);
-  } else if (e.metaKey || e.ctrlKey) {
-    actions.toggleNodeSelection(props.node.id);
-  } else {
-    actions.selectAndDrillDown(props.node.id);
-  }
+	if (e.shiftKey) {
+		emit("selectRange", props.node.id);
+	} else if (e.metaKey || e.ctrlKey) {
+		actions.toggleNodeSelection(props.node.id);
+	} else {
+		actions.selectAndDrillDown(props.node.id);
+	}
 }
 
 function handleDragStart(e: DragEvent) {
-  e.dataTransfer!.effectAllowed = "move";
-  if (
-    state.selectedNodeIds.value.size > 1 &&
-    state.selectedNodeIds.value.has(props.node.id)
-  ) {
-    setMultiDragImage(e.dataTransfer!, state.selectedNodeIds.value.size);
-  }
-  emit("dragStart", props.node.id);
+	e.dataTransfer!.effectAllowed = "move";
+	if (
+		state.selectedNodeIds.value.size > 1 &&
+		state.selectedNodeIds.value.has(props.node.id)
+	) {
+		setMultiDragImage(e.dataTransfer!, state.selectedNodeIds.value.size);
+	}
+	emit("dragStart", props.node.id);
 }
 </script>
 

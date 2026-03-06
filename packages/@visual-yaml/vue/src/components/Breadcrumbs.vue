@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { shallowRef, computed, watch, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, shallowRef, watch } from "vue";
 import { useStudio } from "../composables/use-studio";
 
 defineProps<{
-  class?: string;
+	class?: string;
 }>();
 
 const { state, actions } = useStudio();
@@ -12,9 +12,9 @@ const MAX_SUGGESTIONS = 20;
 const DROPDOWN_MAX_HEIGHT = 200;
 
 const drillDownNode = computed(() =>
-  state.drillDownNodeId.value
-    ? state.tree.value.nodesById.get(state.drillDownNodeId.value)
-    : null,
+	state.drillDownNodeId.value
+		? state.tree.value.nodesById.get(state.drillDownNodeId.value)
+		: null,
 );
 const currentPath = computed(() => drillDownNode.value?.path ?? "/");
 
@@ -26,99 +26,99 @@ const listRef = shallowRef<HTMLDivElement | null>(null);
 const wrapperRef = shallowRef<HTMLDivElement | null>(null);
 
 watch(currentPath, (p) => {
-  inputValue.value = p;
+	inputValue.value = p;
 });
 
 const suggestions = computed(() => {
-  if (!open.value) return [];
-  const query = inputValue.value.toLowerCase();
-  const matches: { id: string; path: string }[] = [];
-  for (const [id, node] of state.tree.value.nodesById) {
-    if (node.path.toLowerCase().startsWith(query)) {
-      matches.push({ id, path: node.path });
-    }
-    if (matches.length >= MAX_SUGGESTIONS) break;
-  }
-  matches.sort((a, b) => a.path.localeCompare(b.path));
-  return matches;
+	if (!open.value) return [];
+	const query = inputValue.value.toLowerCase();
+	const matches: { id: string; path: string }[] = [];
+	for (const [id, node] of state.tree.value.nodesById) {
+		if (node.path.toLowerCase().startsWith(query)) {
+			matches.push({ id, path: node.path });
+		}
+		if (matches.length >= MAX_SUGGESTIONS) break;
+	}
+	matches.sort((a, b) => a.path.localeCompare(b.path));
+	return matches;
 });
 
 watch(suggestions, () => {
-  highlightIndex.value = 0;
+	highlightIndex.value = 0;
 });
 
 watch(
-  () => [highlightIndex.value, open.value] as [number, boolean],
-  ([idx, isOpen]) => {
-    const el = listRef.value;
-    if (!el || !isOpen) return;
-    const item = el.children[idx] as HTMLElement | undefined;
-    item?.scrollIntoView({ block: "nearest" });
-  },
+	() => [highlightIndex.value, open.value] as [number, boolean],
+	([idx, isOpen]) => {
+		const el = listRef.value;
+		if (!el || !isOpen) return;
+		const item = el.children[idx] as HTMLElement | undefined;
+		item?.scrollIntoView({ block: "nearest" });
+	},
 );
 
 function navigateTo(path: string) {
-  for (const [id, node] of state.tree.value.nodesById) {
-    if (node.path === path) {
-      actions.selectAndDrillDown(id);
-      break;
-    }
-  }
-  open.value = false;
-  inputRef.value?.blur();
+	for (const [id, node] of state.tree.value.nodesById) {
+		if (node.path === path) {
+			actions.selectAndDrillDown(id);
+			break;
+		}
+	}
+	open.value = false;
+	inputRef.value?.blur();
 }
 
 function handleKeyDown(e: KeyboardEvent) {
-  if (!open.value) {
-    if (e.key === "ArrowDown" || e.key === "Enter") {
-      open.value = true;
-      e.preventDefault();
-    }
-    return;
-  }
+	if (!open.value) {
+		if (e.key === "ArrowDown" || e.key === "Enter") {
+			open.value = true;
+			e.preventDefault();
+		}
+		return;
+	}
 
-  switch (e.key) {
-    case "ArrowDown":
-      e.preventDefault();
-      highlightIndex.value = Math.min(
-        highlightIndex.value + 1,
-        suggestions.value.length - 1,
-      );
-      break;
-    case "ArrowUp":
-      e.preventDefault();
-      highlightIndex.value = Math.max(highlightIndex.value - 1, 0);
-      break;
-    case "Enter":
-      e.preventDefault();
-      if (
-        suggestions.value.length > 0 &&
-        highlightIndex.value < suggestions.value.length
-      ) {
-        navigateTo(suggestions.value[highlightIndex.value]!.path);
-      } else {
-        navigateTo(inputValue.value.trim() || "/");
-      }
-      break;
-    case "Escape":
-      e.preventDefault();
-      inputValue.value = currentPath.value;
-      open.value = false;
-      inputRef.value?.blur();
-      break;
-  }
+	switch (e.key) {
+		case "ArrowDown":
+			e.preventDefault();
+			highlightIndex.value = Math.min(
+				highlightIndex.value + 1,
+				suggestions.value.length - 1,
+			);
+			break;
+		case "ArrowUp":
+			e.preventDefault();
+			highlightIndex.value = Math.max(highlightIndex.value - 1, 0);
+			break;
+		case "Enter":
+			e.preventDefault();
+			if (
+				suggestions.value.length > 0 &&
+				highlightIndex.value < suggestions.value.length
+			) {
+				navigateTo(suggestions.value[highlightIndex.value]!.path);
+			} else {
+				navigateTo(inputValue.value.trim() || "/");
+			}
+			break;
+		case "Escape":
+			e.preventDefault();
+			inputValue.value = currentPath.value;
+			open.value = false;
+			inputRef.value?.blur();
+			break;
+	}
 }
 
 function handleClickOutside(e: MouseEvent) {
-  if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
-    inputValue.value = currentPath.value;
-    open.value = false;
-  }
+	if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
+		inputValue.value = currentPath.value;
+		open.value = false;
+	}
 }
 
 onMounted(() => document.addEventListener("mousedown", handleClickOutside));
 onUnmounted(() =>
-  document.removeEventListener("mousedown", handleClickOutside),
+	document.removeEventListener("mousedown", handleClickOutside),
 );
 </script>
 

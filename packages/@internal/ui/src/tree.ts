@@ -1,25 +1,25 @@
 import type { TreeNode, TreeState } from "@visual-yaml/core";
 
 export function getVisibleNodes(
-  root: TreeNode,
-  isExpanded: (nodeId: string) => boolean,
+	root: TreeNode,
+	isExpanded: (nodeId: string) => boolean,
 ): TreeNode[] {
-  const result: TreeNode[] = [];
+	const result: TreeNode[] = [];
 
-  function walk(node: TreeNode) {
-    result.push(node);
-    if (
-      isExpanded(node.id) &&
-      (node.type === "object" || node.type === "array")
-    ) {
-      for (const child of node.children) {
-        walk(child);
-      }
-    }
-  }
+	function walk(node: TreeNode) {
+		result.push(node);
+		if (
+			isExpanded(node.id) &&
+			(node.type === "object" || node.type === "array")
+		) {
+			for (const child of node.children) {
+				walk(child);
+			}
+		}
+	}
 
-  walk(root);
-  return result;
+	walk(root);
+	return result;
 }
 
 const LABEL_FIELDS = ["name", "type", "title", "id", "label", "key"];
@@ -30,25 +30,25 @@ const LABEL_FIELDS = ["name", "type", "title", "id", "label", "key"];
  * the numeric index.
  */
 export function getDisplayKey(node: TreeNode, state: TreeState): string {
-  if (node.parentId === null) return "/";
+	if (node.parentId === null) return "/";
 
-  const parent = state.nodesById.get(node.parentId);
-  if (parent?.type !== "array" || node.type !== "object") return node.key;
+	const parent = state.nodesById.get(node.parentId);
+	if (parent?.type !== "array" || node.type !== "object") return node.key;
 
-  for (const field of LABEL_FIELDS) {
-    const child = node.children.find((c) => c.key === field);
-    if (child?.value != null && child.value !== "") {
-      return String(child.value);
-    }
-  }
+	for (const field of LABEL_FIELDS) {
+		const child = node.children.find((c) => c.key === field);
+		if (child?.value != null && child.value !== "") {
+			return String(child.value);
+		}
+	}
 
-  return node.key;
+	return node.key;
 }
 
 export function collectAllIds(node: TreeNode): string[] {
-  const ids: string[] = [node.id];
-  for (const child of node.children) {
-    ids.push(...collectAllIds(child));
-  }
-  return ids;
+	const ids: string[] = [node.id];
+	for (const child of node.children) {
+		ids.push(...collectAllIds(child));
+	}
+	return ids;
 }

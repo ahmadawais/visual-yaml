@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import { shallowRef, inject, computed, watch, nextTick } from "vue";
 import {
-  setValue,
-  setKey,
-  addProperty,
-  removeNode,
-  type TreeNode,
-} from "@visual-yaml/core";
-import {
-  getDisplayKey,
-  getResolvedSchema,
-  getValueColor as getValueColorFn,
-  getDisplayValue as getDisplayValueFn,
-  checkRequired as checkRequiredFn,
-  parseInputValue,
-  setMultiDragImage,
+	checkRequired as checkRequiredFn,
+	getDisplayKey,
+	getDisplayValue as getDisplayValueFn,
+	getResolvedSchema,
+	getValueColor as getValueColorFn,
+	parseInputValue,
+	setMultiDragImage,
 } from "@internal/ui";
+import {
+	addProperty,
+	removeNode,
+	setKey,
+	setValue,
+	type TreeNode,
+} from "@visual-yaml/core";
+import { computed, inject, nextTick, shallowRef, watch } from "vue";
 import { useStudio } from "../composables/use-studio";
-import { FORM_VIEW_KEY } from "./form-view-context";
 import EnumInput from "./EnumInput.vue";
-
 // Self-import for recursion
 import FormField from "./FormField.vue";
+import { FORM_VIEW_KEY } from "./form-view-context";
 
 const props = defineProps<{
-  node: TreeNode;
-  depth: number;
+	node: TreeNode;
+	depth: number;
 }>();
 
 const ctx = inject(FORM_VIEW_KEY)!;
@@ -37,155 +36,155 @@ const valueInputRef = shallowRef<any>(null);
 const keyInputRef = shallowRef<HTMLInputElement | null>(null);
 
 function focusValueInput() {
-  if (valueInputRef.value && typeof valueInputRef.value.focus === "function") {
-    valueInputRef.value.focus();
-  }
+	if (valueInputRef.value && typeof valueInputRef.value.focus === "function") {
+		valueInputRef.value.focus();
+	}
 }
 
 const isContainer = computed(
-  () => props.node.type === "object" || props.node.type === "array",
+	() => props.node.type === "object" || props.node.type === "array",
 );
 const isRoot = computed(() => props.node.parentId === null);
-const isSelected = computed(
-  () => state.selectedNodeIds.value.has(props.node.id),
+const isSelected = computed(() =>
+	state.selectedNodeIds.value.has(props.node.id),
 );
 const isEditing = computed(() => ctx.editingNodeId.value === props.node.id);
 const collapsed = computed(() => ctx.collapsedIds.value.has(props.node.id));
 
 const parentIsObject = computed(() => {
-  if (!props.node.parentId) return false;
-  return state.tree.value.nodesById.get(props.node.parentId)?.type === "object";
+	if (!props.node.parentId) return false;
+	return state.tree.value.nodesById.get(props.node.parentId)?.type === "object";
 });
 
 const propSchema = computed(() =>
-  getResolvedSchema(
-    ctx.schema.value,
-    ctx.rootSchema.value,
-    props.node.path,
-  ),
+	getResolvedSchema(ctx.schema.value, ctx.rootSchema.value, props.node.path),
 );
 
 const isRequired = computed(() =>
-  checkRequiredFn(props.node, ctx.schema.value, ctx.rootSchema.value),
+	checkRequiredFn(props.node, ctx.schema.value, ctx.rootSchema.value),
 );
 const description = computed(() => propSchema.value?.description);
 const isDeprecated = computed(() => propSchema.value?.deprecated);
 const fieldTitle = computed(() => propSchema.value?.title);
 
 const isDragTarget = computed(
-  () => ctx.dragState.value.dropTargetNodeId === props.node.id,
+	() => ctx.dragState.value.dropTargetNodeId === props.node.id,
 );
-const isDraggedNode = computed(
-  () => ctx.dragState.value.draggedNodeIds.has(props.node.id),
+const isDraggedNode = computed(() =>
+	ctx.dragState.value.draggedNodeIds.has(props.node.id),
 );
 
 function getBorderTopColor() {
-  if (isDragTarget.value && ctx.dragState.value.dropPosition === "before") {
-    return "var(--vj-accent, #007acc)";
-  }
-  return "transparent";
+	if (isDragTarget.value && ctx.dragState.value.dropPosition === "before") {
+		return "var(--vj-accent, #007acc)";
+	}
+	return "transparent";
 }
 
 function getBorderBottomColor() {
-  if (isDragTarget.value && ctx.dragState.value.dropPosition === "after") {
-    return "var(--vj-accent, #007acc)";
-  }
-  return "transparent";
+	if (isDragTarget.value && ctx.dragState.value.dropPosition === "after") {
+		return "var(--vj-accent, #007acc)";
+	}
+	return "transparent";
 }
 
 function getRowBg() {
-  if (isSelected.value) {
-    return ctx.isFocused.value
-      ? "var(--vj-bg-selected, #2a5a1e)"
-      : "var(--vj-bg-selected-muted, var(--vj-bg-hover, #2a2d2e))";
-  }
-  if (hovered.value) return "var(--vj-bg-hover, #2a2d2e)";
-  return "transparent";
+	if (isSelected.value) {
+		return ctx.isFocused.value
+			? "var(--vj-bg-selected, #2a5a1e)"
+			: "var(--vj-bg-selected-muted, var(--vj-bg-hover, #2a2d2e))";
+	}
+	if (hovered.value) return "var(--vj-bg-hover, #2a2d2e)";
+	return "transparent";
 }
 
 function getRowColor() {
-  return isSelected.value && ctx.isFocused.value
-    ? "var(--vj-text-selected, var(--vj-text, #cccccc))"
-    : "var(--vj-text, #cccccc)";
+	return isSelected.value && ctx.isFocused.value
+		? "var(--vj-text-selected, var(--vj-text, #cccccc))"
+		: "var(--vj-text, #cccccc)";
 }
 
 function getValueColor(): string {
-  return getValueColorFn(props.node);
+	return getValueColorFn(props.node);
 }
 
 function getDisplayValue(): string {
-  return getDisplayValueFn(props.node);
+	return getDisplayValueFn(props.node);
 }
 
 function handleDragOver(e: DragEvent) {
-  e.preventDefault();
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-  const midY = rect.top + rect.height / 2;
-  ctx.onDragOver(props.node.id, e.clientY < midY ? "before" : "after");
+	e.preventDefault();
+	const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+	const midY = rect.top + rect.height / 2;
+	ctx.onDragOver(props.node.id, e.clientY < midY ? "before" : "after");
 }
 
 function handleDragStart(e: DragEvent) {
-  e.dataTransfer!.effectAllowed = "move";
-  if (
-    state.selectedNodeIds.value.size > 1 &&
-    state.selectedNodeIds.value.has(props.node.id)
-  ) {
-    setMultiDragImage(e.dataTransfer!, state.selectedNodeIds.value.size);
-  }
-  ctx.onDragStart(props.node.id);
+	e.dataTransfer!.effectAllowed = "move";
+	if (
+		state.selectedNodeIds.value.size > 1 &&
+		state.selectedNodeIds.value.has(props.node.id)
+	) {
+		setMultiDragImage(e.dataTransfer!, state.selectedNodeIds.value.size);
+	}
+	ctx.onDragStart(props.node.id);
 }
 
 function handleValueChange(newValue: string) {
-  const parsed = parseInputValue(newValue, propSchema.value?.type, props.node.type);
-  const newTree = setValue(state.tree.value, props.node.id, parsed);
-  actions.setTree(newTree);
+	const parsed = parseInputValue(
+		newValue,
+		propSchema.value?.type,
+		props.node.type,
+	);
+	const newTree = setValue(state.tree.value, props.node.id, parsed);
+	actions.setTree(newTree);
 }
 
 function handleKeyChange(newKey: string) {
-  const newTree = setKey(state.tree.value, props.node.id, newKey);
-  actions.setTree(newTree);
+	const newTree = setKey(state.tree.value, props.node.id, newKey);
+	actions.setTree(newTree);
 }
 
 function handleRemove() {
-  const newTree = removeNode(state.tree.value, props.node.id);
-  actions.setTree(newTree);
+	const newTree = removeNode(state.tree.value, props.node.id);
+	actions.setTree(newTree);
 }
 
 function handleAddChild() {
-  const key =
-    props.node.type === "array"
-      ? String(props.node.children.length)
-      : `newKey${props.node.children.length}`;
-  const newTree = addProperty(state.tree.value, props.node.id, key, "");
-  actions.setTree(newTree);
+	const key =
+		props.node.type === "array"
+			? String(props.node.children.length)
+			: `newKey${props.node.children.length}`;
+	const newTree = addProperty(state.tree.value, props.node.id, key, "");
+	actions.setTree(newTree);
 }
 
 const hasEnumValues = computed(
-  () => propSchema.value?.enum && propSchema.value.enum.length > 0,
+	() => propSchema.value?.enum && propSchema.value.enum.length > 0,
 );
 
 const keyWidth = computed(
-  () =>
-    `calc(${(ctx.maxDepth.value - props.depth) * 16}px + ${ctx.maxKeyLength.value}ch)`,
+	() =>
+		`calc(${(ctx.maxDepth.value - props.depth) * 16}px + ${ctx.maxKeyLength.value}ch)`,
 );
 
 // Focus the appropriate input when editing starts
 watch(isEditing, async (editing) => {
-  if (!editing) return;
-  await nextTick();
-  if (!isContainer.value) {
-    const hasValue =
-      props.node.value !== null &&
-      props.node.value !== undefined &&
-      props.node.value !== "";
-    if (hasValue && valueInputRef.value) {
-      focusValueInput();
-    } else if (keyInputRef.value) {
-      keyInputRef.value.focus();
-    }
-  } else if (keyInputRef.value) {
-    keyInputRef.value.focus();
-  }
+	if (!editing) return;
+	await nextTick();
+	if (!isContainer.value) {
+		const hasValue =
+			props.node.value !== null &&
+			props.node.value !== undefined &&
+			props.node.value !== "";
+		if (hasValue && valueInputRef.value) {
+			focusValueInput();
+		} else if (keyInputRef.value) {
+			keyInputRef.value.focus();
+		}
+	} else if (keyInputRef.value) {
+		keyInputRef.value.focus();
+	}
 });
 </script>
 

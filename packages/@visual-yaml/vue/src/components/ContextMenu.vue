@@ -1,76 +1,76 @@
 <script setup lang="ts">
-import { shallowRef, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { nextTick, onMounted, onUnmounted, shallowRef, watch } from "vue";
 
 export interface ContextMenuItem {
-  label: string;
-  action: () => void;
-  disabled?: boolean;
-  separator?: false;
+	label: string;
+	action: () => void;
+	disabled?: boolean;
+	separator?: false;
 }
 
 export interface ContextMenuSeparator {
-  separator: true;
+	separator: true;
 }
 
 export type ContextMenuEntry = ContextMenuItem | ContextMenuSeparator;
 
 const props = defineProps<{
-  x: number;
-  y: number;
-  items: ContextMenuEntry[];
+	x: number;
+	y: number;
+	items: ContextMenuEntry[];
 }>();
 
 const emit = defineEmits<{
-  close: [];
+	close: [];
 }>();
 
 const menuRef = shallowRef<HTMLDivElement | null>(null);
 const pos = shallowRef({ left: props.x, top: props.y });
 
 watch(
-  () => [props.x, props.y],
-  async () => {
-    await nextTick();
-    if (!menuRef.value) return;
-    const rect = menuRef.value.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    pos.value = {
-      left: rect.right > vw ? Math.max(0, props.x - rect.width) : props.x,
-      top: rect.bottom > vh ? Math.max(0, props.y - rect.height) : props.y,
-    };
-  },
-  { immediate: true },
+	() => [props.x, props.y],
+	async () => {
+		await nextTick();
+		if (!menuRef.value) return;
+		const rect = menuRef.value.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		pos.value = {
+			left: rect.right > vw ? Math.max(0, props.x - rect.width) : props.x,
+			top: rect.bottom > vh ? Math.max(0, props.y - rect.height) : props.y,
+		};
+	},
+	{ immediate: true },
 );
 
 function handleClick(e: MouseEvent) {
-  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
-    emit("close");
-  }
+	if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+		emit("close");
+	}
 }
 
 function handleKey(e: KeyboardEvent) {
-  if (e.key === "Escape") emit("close");
+	if (e.key === "Escape") emit("close");
 }
 
 onMounted(async () => {
-  await nextTick();
-  if (menuRef.value) {
-    const rect = menuRef.value.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    pos.value = {
-      left: rect.right > vw ? Math.max(0, props.x - rect.width) : props.x,
-      top: rect.bottom > vh ? Math.max(0, props.y - rect.height) : props.y,
-    };
-  }
-  document.addEventListener("mousedown", handleClick);
-  document.addEventListener("keydown", handleKey);
+	await nextTick();
+	if (menuRef.value) {
+		const rect = menuRef.value.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		pos.value = {
+			left: rect.right > vw ? Math.max(0, props.x - rect.width) : props.x,
+			top: rect.bottom > vh ? Math.max(0, props.y - rect.height) : props.y,
+		};
+	}
+	document.addEventListener("mousedown", handleClick);
+	document.addEventListener("keydown", handleKey);
 });
 
 onUnmounted(() => {
-  document.removeEventListener("mousedown", handleClick);
-  document.removeEventListener("keydown", handleKey);
+	document.removeEventListener("mousedown", handleClick);
+	document.removeEventListener("keydown", handleKey);
 });
 </script>
 

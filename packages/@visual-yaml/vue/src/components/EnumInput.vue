@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { shallowRef, computed, watch, onMounted, onUnmounted } from "vue";
 import type { YamlValue } from "@visual-yaml/core";
+import { computed, onMounted, onUnmounted, shallowRef, watch } from "vue";
 
 const props = defineProps<{
-  enumValues: YamlValue[];
-  value: string;
-  inputStyle?: Record<string, string>;
+	enumValues: YamlValue[];
+	value: string;
+	inputStyle?: Record<string, string>;
 }>();
 
 const emit = defineEmits<{
-  valueChange: [val: string];
+	valueChange: [val: string];
 }>();
 
 const inputRef = defineModel<HTMLInputElement | null>("inputRef");
@@ -24,91 +24,91 @@ const wrapperRef = shallowRef<HTMLDivElement | null>(null);
 const localInputRef = shallowRef<HTMLInputElement | null>(null);
 
 watch(
-  () => props.value,
-  (v) => {
-    inputValue.value = v;
-  },
+	() => props.value,
+	(v) => {
+		inputValue.value = v;
+	},
 );
 
 const suggestions = computed(() => props.enumValues.map((v) => String(v)));
 
 watch(suggestions, () => {
-  highlightIndex.value = 0;
+	highlightIndex.value = 0;
 });
 
 watch(
-  () => [highlightIndex.value, open.value] as [number, boolean],
-  ([idx, isOpen]) => {
-    const el = listRef.value;
-    if (!el || !isOpen) return;
-    const item = el.children[idx] as HTMLElement | undefined;
-    item?.scrollIntoView({ block: "nearest" });
-  },
+	() => [highlightIndex.value, open.value] as [number, boolean],
+	([idx, isOpen]) => {
+		const el = listRef.value;
+		if (!el || !isOpen) return;
+		const item = el.children[idx] as HTMLElement | undefined;
+		item?.scrollIntoView({ block: "nearest" });
+	},
 );
 
 function selectValue(val: string) {
-  emit("valueChange", val);
-  inputValue.value = val;
-  open.value = false;
+	emit("valueChange", val);
+	inputValue.value = val;
+	open.value = false;
 }
 
 function handleKeyDown(e: KeyboardEvent) {
-  if (!open.value) {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      e.stopPropagation();
-      open.value = true;
-    }
-    return;
-  }
+	if (!open.value) {
+		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+			e.preventDefault();
+			e.stopPropagation();
+			open.value = true;
+		}
+		return;
+	}
 
-  switch (e.key) {
-    case "ArrowDown":
-      e.preventDefault();
-      e.stopPropagation();
-      highlightIndex.value = Math.min(
-        highlightIndex.value + 1,
-        suggestions.value.length - 1,
-      );
-      break;
-    case "ArrowUp":
-      e.preventDefault();
-      e.stopPropagation();
-      highlightIndex.value = Math.max(highlightIndex.value - 1, 0);
-      break;
-    case "Enter":
-      e.preventDefault();
-      e.stopPropagation();
-      if (
-        suggestions.value.length > 0 &&
-        highlightIndex.value < suggestions.value.length
-      ) {
-        selectValue(suggestions.value[highlightIndex.value]!);
-      }
-      break;
-    case "Escape":
-      e.preventDefault();
-      e.stopPropagation();
-      inputValue.value = props.value;
-      open.value = false;
-      break;
-    case "Tab":
-      inputValue.value = props.value;
-      open.value = false;
-      break;
-  }
+	switch (e.key) {
+		case "ArrowDown":
+			e.preventDefault();
+			e.stopPropagation();
+			highlightIndex.value = Math.min(
+				highlightIndex.value + 1,
+				suggestions.value.length - 1,
+			);
+			break;
+		case "ArrowUp":
+			e.preventDefault();
+			e.stopPropagation();
+			highlightIndex.value = Math.max(highlightIndex.value - 1, 0);
+			break;
+		case "Enter":
+			e.preventDefault();
+			e.stopPropagation();
+			if (
+				suggestions.value.length > 0 &&
+				highlightIndex.value < suggestions.value.length
+			) {
+				selectValue(suggestions.value[highlightIndex.value]!);
+			}
+			break;
+		case "Escape":
+			e.preventDefault();
+			e.stopPropagation();
+			inputValue.value = props.value;
+			open.value = false;
+			break;
+		case "Tab":
+			inputValue.value = props.value;
+			open.value = false;
+			break;
+	}
 }
 
 function handleClickOutside(e: MouseEvent) {
-  if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
-    inputValue.value = props.value;
-    open.value = false;
-  }
+	if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
+		inputValue.value = props.value;
+		open.value = false;
+	}
 }
 
 onMounted(() => document.addEventListener("mousedown", handleClickOutside));
 onUnmounted(() =>
-  document.removeEventListener("mousedown", handleClickOutside),
+	document.removeEventListener("mousedown", handleClickOutside),
 );
 
 defineExpose({ focus: () => localInputRef.value?.focus() });

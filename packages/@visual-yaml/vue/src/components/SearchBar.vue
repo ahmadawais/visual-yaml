@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { shallowRef, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, shallowRef } from "vue";
 import { useStudio } from "../composables/use-studio";
 
 defineProps<{
-  class?: string;
+	class?: string;
 }>();
 
 const { state, actions } = useStudio();
 const inputRef = shallowRef<HTMLInputElement | null>(null);
 
 function handleKeyDown(e: KeyboardEvent) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    if (e.shiftKey) {
-      actions.prevSearchMatch();
-    } else {
-      actions.nextSearchMatch();
-    }
-  }
-  if (e.key === "Escape") {
-    e.preventDefault();
-    actions.setSearchQuery("");
-    inputRef.value?.blur();
-  }
+	if (e.key === "Enter") {
+		e.preventDefault();
+		if (e.shiftKey) {
+			actions.prevSearchMatch();
+		} else {
+			actions.nextSearchMatch();
+		}
+	}
+	if (e.key === "Escape") {
+		e.preventDefault();
+		actions.setSearchQuery("");
+		inputRef.value?.blur();
+	}
 }
 
 function handleGlobalKeyDown(e: KeyboardEvent) {
-  const mod = e.metaKey || e.ctrlKey;
-  if (mod && e.key === "f") {
-    e.preventDefault();
-    inputRef.value?.focus();
-    inputRef.value?.select();
-  }
+	const mod = e.metaKey || e.ctrlKey;
+	if (mod && e.key === "f") {
+		e.preventDefault();
+		inputRef.value?.focus();
+		inputRef.value?.select();
+	}
 }
 
 onMounted(() => document.addEventListener("keydown", handleGlobalKeyDown));

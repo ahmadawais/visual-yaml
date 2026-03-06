@@ -1,24 +1,30 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { computeDiff, type DiffEntry } from "@visual-yaml/core";
 import { DIFF_COLORS, formatValue } from "@internal/ui";
+import { computeDiff, type DiffEntry } from "@visual-yaml/core";
+import { computed } from "vue";
 
 const props = defineProps<{
-  originalJson: unknown;
-  currentJson: unknown;
-  class?: string;
+	originalYaml: unknown;
+	currentYaml: unknown;
+	class?: string;
 }>();
 
 const entries = computed(() =>
-  computeDiff(props.originalJson as never, props.currentJson as never),
+	computeDiff(props.originalYaml as never, props.currentYaml as never),
 );
 
-const added = computed(() => entries.value.filter((e) => e.type === "added").length);
-const removed = computed(() => entries.value.filter((e) => e.type === "removed").length);
-const changed = computed(() => entries.value.filter((e) => e.type === "changed").length);
+const added = computed(
+	() => entries.value.filter((e) => e.type === "added").length,
+);
+const removed = computed(
+	() => entries.value.filter((e) => e.type === "removed").length,
+);
+const changed = computed(
+	() => entries.value.filter((e) => e.type === "changed").length,
+);
 
 function getColors(entry: DiffEntry) {
-  return DIFF_COLORS[entry.type];
+	return DIFF_COLORS[entry.type];
 }
 </script>
 
