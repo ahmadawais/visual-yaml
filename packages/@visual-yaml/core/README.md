@@ -13,19 +13,52 @@ npm install @visual-yaml/core
 ## Usage
 
 ```ts
-import { fromYaml, toYaml, setValue, addProperty } from "@visual-yaml/core";
+import {
+  parseYaml,
+  stringifyYaml,
+  fromYaml,
+  toYaml,
+  setValue,
+} from "@visual-yaml/core";
 
-// Convert a JSON value into an editable tree
-const tree = fromYaml({ name: "my-app", version: "1.0.0" });
+// Parse a YAML string into a JavaScript value
+const value = parseYaml("name: my-app\nversion: 1.0.0\n");
+
+// Convert a YAML value into an editable tree
+const tree = fromYaml(value);
 
 // Mutate immutably — returns a new tree with structural sharing
 const updated = setValue(tree, tree.root.children[0].id, "new-app");
 
-// Convert back to plain JSON
-const json = toYaml(updated.root);
+// Convert back to plain YAML
+const yaml = toYaml(updated.root);
+
+// Serialize back to a YAML string
+const yamlString = stringifyYaml(yaml);
 ```
 
 ## API
+
+### YAML Parsing
+
+<table>
+  <thead>
+    <tr>
+      <th>Export</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>parseYaml(input)</code></td>
+      <td>Parse a YAML string into a <code>YamlValue</code></td>
+    </tr>
+    <tr>
+      <td><code>stringifyYaml(value)</code></td>
+      <td>Serialize a <code>YamlValue</code> to a YAML string</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Tree
 
@@ -51,7 +84,7 @@ const json = toYaml(updated.root);
     </tr>
     <tr>
       <td><code>findNodeByPath(state, path)</code></td>
-      <td>Look up a node by JSON path</td>
+      <td>Look up a node by path</td>
     </tr>
   </tbody>
 </table>
@@ -127,7 +160,7 @@ All operations return a new `TreeState` with structural sharing.
   <tbody>
     <tr>
       <td><code>resolveSchema(value, filename)</code></td>
-      <td>Auto-detect and fetch a JSON Schema for a file</td>
+      <td>Auto-detect and fetch a schema for a file</td>
     </tr>
     <tr>
       <td><code>getPropertySchema(schema, path)</code></td>
@@ -156,7 +189,7 @@ All operations return a new `TreeState` with structural sharing.
     </tr>
     <tr>
       <td><code>computeDiff(a, b)</code></td>
-      <td>Compute a structural diff between two JSON values</td>
+      <td>Compute a structural diff between two YAML values</td>
     </tr>
     <tr>
       <td><code>History</code></td>

@@ -40,7 +40,7 @@ function App() {
     <tr>
       <td><code>value</code></td>
       <td><code>YamlValue</code></td>
-      <td>Controlled JSON value</td>
+      <td>Controlled YAML value</td>
     </tr>
     <tr>
       <td><code>defaultValue</code></td>
@@ -55,7 +55,7 @@ function App() {
     <tr>
       <td><code>schema</code></td>
       <td><code>YamlSchema | null</code></td>
-      <td>Optional JSON Schema for validation and hints</td>
+      <td>Optional YAML schema for validation and hints</td>
     </tr>
     <tr>
       <td><code>readOnly</code></td>
@@ -142,7 +142,7 @@ function CustomEditor({ value, onChange }) {
     </tr>
     <tr>
       <td><code>DiffView</code></td>
-      <td>Side-by-side structural diff between two JSON values</td>
+      <td>Side-by-side structural diff between two YAML values</td>
     </tr>
     <tr>
       <td><code>SearchBar</code></td>
@@ -193,7 +193,7 @@ All components read CSS custom properties for colors, fonts, and spacing. Overri
 />
 ```
 
-See the [default variable list](src/json-editor.tsx) for all available tokens.
+See the [default variable list](src/yaml-editor.tsx) for all available tokens.
 
 ## License
 

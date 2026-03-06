@@ -2,22 +2,22 @@ export { metadata } from "./metadata";
 
 # Getting Started
 
-visual-json is the visual JSON editor. Schema-aware, embeddable, extensible. It provides tree view, form view, diff view,
+visual-yaml is the visual JSON editor. Schema-aware, embeddable, extensible. It provides tree view, form view, diff view,
 and raw editing modes — all powered by a headless core library with React and Vue components.
 
 ## Packages
 
-visual-json is split into focused packages:
+visual-yaml is split into focused packages:
 
 <table>
   <thead>
     <tr><th>Package</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>@visual-json/core</code></td><td>Headless tree model, operations, schema resolution, diffing, search, and validation</td></tr>
-    <tr><td><code>@visual-json/react</code></td><td>React UI components — TreeView, FormView, DiffView, and more</td></tr>
-    <tr><td><code>@visual-json/vue</code></td><td>Vue 3 UI components — TreeView, FormView, DiffView, and more</td></tr>
-    <tr><td><code>@visual-json/vscode</code></td><td>VS Code extension — open any JSON/JSONC file with a visual editor</td></tr>
+    <tr><td><code>@visual-yaml/core</code></td><td>Headless tree model, operations, schema resolution, diffing, search, and validation</td></tr>
+    <tr><td><code>@visual-yaml/react</code></td><td>React UI components — TreeView, FormView, DiffView, and more</td></tr>
+    <tr><td><code>@visual-yaml/vue</code></td><td>Vue 3 UI components — TreeView, FormView, DiffView, and more</td></tr>
+    <tr><td><code>@visual-yaml/vscode</code></td><td>VS Code extension — open any YAML file with a visual editor</td></tr>
   </tbody>
 </table>
 
@@ -27,76 +27,76 @@ Install the core library and your framework's components:
 
 ```bash
 # React
-npm install @visual-json/core @visual-json/react
+npm install @visual-yaml/core @visual-yaml/react
 
 # Vue
-npm install @visual-json/core @visual-json/vue
+npm install @visual-yaml/core @visual-yaml/vue
 ```
 
 ## Quick Start (React)
 
-Wrap your UI in the `VisualJson` provider, then use any combination of the built-in components:
+Wrap your UI in the `VisualYaml` provider, then use any combination of the built-in components:
 
 ```tsx
-import { VisualJson, TreeView, FormView } from "@visual-json/react";
+import { VisualYaml, TreeView, FormView } from "@visual-yaml/react";
 import { useState } from "react";
 
 function Editor() {
   const [value, setValue] = useState({ hello: "world" });
 
   return (
-    <VisualJson value={value} onChange={setValue}>
+    <VisualYaml value={value} onChange={setValue}>
       <div style={{ display: "flex", gap: 16 }}>
         <TreeView />
         <FormView />
       </div>
-    </VisualJson>
+    </VisualYaml>
   );
 }
 ```
 
 ## Quick Start (Vue)
 
-Same pattern — the `VisualJson` component provides state to all child components:
+Same pattern — the `VisualYaml` component provides state to all child components:
 
 ```vue
 <script setup>
 import { ref } from "vue";
-import { VisualJson, TreeView, FormView } from "@visual-json/vue";
+import { VisualYaml, TreeView, FormView } from "@visual-yaml/vue";
 
 const value = ref({ hello: "world" });
 </script>
 
 <template>
-  <VisualJson :value="value" @change="value = $event">
+  <VisualYaml :value="value" @change="value = $event">
     <div style="display: flex; gap: 16px">
       <TreeView />
       <FormView />
     </div>
-  </VisualJson>
+  </VisualYaml>
 </template>
 ```
 
-The `VisualJson` component manages all internal state — tree structure, selection,
+The `VisualYaml` component manages all internal state — tree structure, selection,
 expand/collapse, undo/redo, search, and schema. Child components read from and
 write to this shared context automatically.
 
 ## View Modes
 
-visual-json supports multiple ways to view and edit your data:
+visual-yaml supports multiple ways to view and edit your data:
 
 - **Tree View** — Hierarchical tree with expand/collapse, drag-and-drop reordering, keyboard navigation, and context menus
 - **Form View** — Schema-aware form editor with descriptions, required fields, and enum dropdowns
-- **Diff View** — Side-by-side comparison of original vs. edited JSON, with color-coded additions, removals, and changes
-- **Raw View** — Direct text editing of the underlying JSON
+- **Diff View** — Side-by-side comparison of original vs. edited YAML, with color-coded additions, removals, and changes
+- **Raw View** — Direct text editing of the underlying YAML
 
 ## VS Code Extension
 
-visual-json is also available as a VS Code extension. Open any `.json` or `.jsonc` file,
-right-click the tab, and choose **"Open With..." > "visual-json"** to use the visual editor.
+visual-yaml is also available as a VS Code extension. Open any `.json` or `.jsonc` file,
+right-click the tab, and choose **"Open With..." > "visual-yaml"** to use the visual editor.
 
 The extension includes a tree sidebar, form editor, schema support (auto-detected from
-`$schema` or known filenames like `package.json` and `tsconfig.json`), and adapts to your
+`$schema` or known filenames like `docker-compose.yaml` and `github-workflow.yaml`), and adapts to your
 VS Code theme colors automatically.
 
 ## Next Steps

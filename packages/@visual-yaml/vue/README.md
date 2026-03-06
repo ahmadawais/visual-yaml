@@ -43,7 +43,7 @@ const value = ref({ hello: "world" });
     <tr>
       <td><code>value</code></td>
       <td><code>YamlValue</code></td>
-      <td>Controlled JSON value</td>
+      <td>Controlled YAML value</td>
     </tr>
     <tr>
       <td><code>defaultValue</code></td>
@@ -53,7 +53,7 @@ const value = ref({ hello: "world" });
     <tr>
       <td><code>schema</code></td>
       <td><code>YamlSchema | null</code></td>
-      <td>Optional JSON Schema for validation and hints</td>
+      <td>Optional YAML schema for validation and hints</td>
     </tr>
     <tr>
       <td><code>readOnly</code></td>
@@ -127,7 +127,7 @@ import { VisualYaml, TreeView, FormView, SearchBar } from "@visual-yaml/vue";
 </script>
 
 <template>
-  <VisualYaml :value="json" @change="onJsonChange">
+  <VisualYaml :value="yaml" @change="onYamlChange">
     <SearchBar />
     <TreeView />
     <FormView />
@@ -159,7 +159,7 @@ import { VisualYaml, TreeView, FormView, SearchBar } from "@visual-yaml/vue";
     </tr>
     <tr>
       <td><code>DiffView</code></td>
-      <td>Side-by-side structural diff between two JSON values</td>
+      <td>Side-by-side structural diff between two YAML values</td>
     </tr>
     <tr>
       <td><code>SearchBar</code></td>
