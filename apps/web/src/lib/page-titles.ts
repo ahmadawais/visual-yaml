@@ -3,10 +3,10 @@
  * Used by both page metadata exports and the OG image route.
  *
  * Keys mirror the page's URL path (e.g., "docs/core" → /og/docs/core).
- * Values are display titles (without the "| visual-json" suffix — the layout template adds that).
+ * Values are display titles (without the "| visual-yaml" suffix — the layout template adds that).
  */
 export const PAGE_TITLES: Record<string, string> = {
-  "": "The Visual JSON\nEditor for Humans",
+  "": "The Visual YAML\nEditor for Humans",
 
   "docs/getting-started": "Getting Started",
   "docs/core": "Core API",

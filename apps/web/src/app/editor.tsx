@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { JsonValue, JsonSchema } from "@visual-json/core";
-import { resolveSchema } from "@visual-json/core";
-import { JsonEditor } from "@visual-json/react";
+import type { YamlValue, YamlSchema } from "@visual-yaml/core";
+import { resolveSchema } from "@visual-yaml/core";
+import { YamlEditor } from "@visual-yaml/react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -41,7 +41,7 @@ const VIEW_MODES: { id: ViewMode; label: string }[] = [
   { id: "raw", label: "Raw" },
 ];
 
-const samples: { name: string; filename: string; data: JsonValue }[] = [
+const samples: { name: string; filename: string; data: YamlValue }[] = [
   {
     name: "package.json",
     filename: "package.json",
@@ -470,9 +470,9 @@ export function Editor({
   defaultSidebarOpen: boolean;
 }) {
   const [activeSample, setActiveSample] = useState(samples[0].filename);
-  const [jsonValue, setJsonValue] = useState<JsonValue>(samples[0].data);
+  const [yamlValue, setYamlValue] = useState<YamlValue>(samples[0].data);
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
-  const [schema, setSchema] = useState<JsonSchema | null>(null);
+  const [schema, setSchema] = useState<YamlSchema | null>(null);
   const [filename, setFilename] = useState(samples[0].filename);
   const [isDragOver, setIsDragOver] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
@@ -493,7 +493,7 @@ export function Editor({
 
   useEffect(() => {
     let cancelled = false;
-    resolveSchema(jsonValue, filename).then((s) => {
+    resolveSchema(yamlValue, filename).then((s) => {
       if (!cancelled) setSchema(s);
     });
     return () => {
@@ -506,13 +506,13 @@ export function Editor({
       skipRawSync.current = false;
       return;
     }
-    setRawText(JSON.stringify(jsonValue, null, 2));
-  }, [jsonValue]);
+    setRawText(JSON.stringify(yamlValue, null, 2));
+  }, [yamlValue]);
 
   const loadJson = useCallback((text: string, fname: string) => {
     try {
       const parsed = JSON.parse(text);
-      setJsonValue(parsed);
+      setYamlValue(parsed);
       setFilename(fname);
       setActiveSample(fname);
       setSchema(null);
@@ -528,7 +528,7 @@ export function Editor({
     if (sample) {
       setActiveSample(fname);
       setFilename(fname);
-      setJsonValue(sample.data);
+      setYamlValue(sample.data);
       setSchema(null);
       setRawError(null);
     }
@@ -553,7 +553,7 @@ export function Editor({
   }, [pasteText, loadJson]);
 
   const handleDownload = useCallback(() => {
-    const text = JSON.stringify(jsonValue, null, 2);
+    const text = JSON.stringify(yamlValue, null, 2);
     const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -561,15 +561,15 @@ export function Editor({
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [jsonValue, filename]);
+  }, [yamlValue, filename]);
 
   const handleCopyJson = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(jsonValue, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(yamlValue, null, 2));
     } catch {
       // clipboard access may be denied
     }
-  }, [jsonValue]);
+  }, [yamlValue]);
 
   const handleRawChange = useCallback((newText: string) => {
     setRawText(newText);
@@ -577,7 +577,7 @@ export function Editor({
       const parsed = JSON.parse(newText);
       setRawError(null);
       skipRawSync.current = true;
-      setJsonValue(parsed);
+      setYamlValue(parsed);
     } catch (e) {
       setRawError(e instanceof Error ? e.message : "Invalid JSON");
     }
@@ -826,9 +826,9 @@ export function Editor({
             />
           </div>
         ) : (
-          <JsonEditor
-            value={jsonValue}
-            onChange={setJsonValue}
+          <YamlEditor
+            value={yamlValue}
+            onChange={setYamlValue}
             schema={schema}
             treeShowValues={treeShowValues}
             treeShowCounts={treeShowCounts}

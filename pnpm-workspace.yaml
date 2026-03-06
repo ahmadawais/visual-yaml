@@ -1,5 +1,5 @@
 packages:
-  - "packages/@visual-json/*"
+  - "packages/@visual-yaml/*"
   - "packages/@internal/*"
   - "apps/*"
   - "examples/*"

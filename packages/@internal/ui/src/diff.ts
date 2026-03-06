@@ -1,4 +1,4 @@
-import type { DiffType } from "@visual-json/core";
+import type { DiffType } from "@visual-yaml/core";
 
 export const DIFF_COLORS: Record<
   DiffType,

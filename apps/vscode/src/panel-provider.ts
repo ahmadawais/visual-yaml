@@ -1,14 +1,13 @@
 import * as vscode from "vscode";
-import { resolveSchema } from "@visual-json/core";
-import { parse as parseJsonc } from "jsonc-parser";
+import { resolveSchema, parseYaml } from "@visual-yaml/core";
 import {
   getWebviewHtml,
   type HostToWebviewMessage,
   type WebviewToHostMessage,
 } from "./webview-utils";
 
-export class VisualJsonPanelProvider implements vscode.WebviewViewProvider {
-  static readonly viewType = "visualJson.panel";
+export class VisualYamlPanelProvider implements vscode.WebviewViewProvider {
+  static readonly viewType = "visualYaml.panel";
 
   private view?: vscode.WebviewView;
   private currentDocumentUri?: string;
@@ -50,12 +49,12 @@ export class VisualJsonPanelProvider implements vscode.WebviewViewProvider {
             break;
           }
           case "edit": {
-            await this.applyEditToDocument(msg.json);
+            await this.applyEditToDocument(msg.yaml);
             break;
           }
           case "requestSchema": {
             try {
-              const parsed = parseJsonc(msg.json);
+              const parsed = parseYaml(msg.yaml);
               const schema = await resolveSchema(parsed, msg.filename);
               const result: HostToWebviewMessage = {
                 type: "schemaResult",
@@ -108,8 +107,7 @@ export class VisualJsonPanelProvider implements vscode.WebviewViewProvider {
     const editor = vscode.window.activeTextEditor;
     if (
       !editor ||
-      (editor.document.languageId !== "json" &&
-        editor.document.languageId !== "jsonc")
+      editor.document.languageId !== "yaml"
     ) {
       this.currentDocumentUri = undefined;
       return;
@@ -120,16 +118,16 @@ export class VisualJsonPanelProvider implements vscode.WebviewViewProvider {
 
   private sendDocumentContent(document: vscode.TextDocument) {
     if (!this.view || !this.ready) return;
-    const filename = document.uri.path.split("/").pop() ?? "file.json";
+    const filename = document.uri.path.split("/").pop() ?? "file.yaml";
     const msg: HostToWebviewMessage = {
       type: "setContent",
-      json: document.getText(),
+      yaml: document.getText(),
       filename,
     };
     this.view.webview.postMessage(msg);
   }
 
-  private async applyEditToDocument(json: string) {
+  private async applyEditToDocument(yaml: string) {
     if (!this.currentDocumentUri) return;
     const uri = vscode.Uri.parse(this.currentDocumentUri);
     const document = vscode.workspace.textDocuments.find(
@@ -141,7 +139,7 @@ export class VisualJsonPanelProvider implements vscode.WebviewViewProvider {
     edit.replace(
       document.uri,
       new vscode.Range(0, 0, document.lineCount, 0),
-      json,
+      yaml,
     );
     this.suppressNextEdit = true;
     await vscode.workspace.applyEdit(edit);

@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: "html",
   use: {
-    baseURL: "http://visual-json.localhost:1355",
+    baseURL: "http://visual-yaml.localhost:1355",
     trace: "on-first-retry",
   },
   projects: [
@@ -17,8 +17,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "portless visual-json next dev --turbopack",
-    url: "http://visual-json.localhost:1355",
+    command: "portless visual-yaml next dev --turbopack",
+    url: "http://visual-yaml.localhost:1355",
     reuseExistingServer: !process.env.CI,
   },
 });

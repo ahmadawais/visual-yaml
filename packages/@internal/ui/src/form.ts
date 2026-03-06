@@ -2,15 +2,15 @@ import {
   getPropertySchema,
   resolveRef,
   type TreeNode,
-  type JsonSchema,
-  type JsonSchemaProperty,
-} from "@visual-json/core";
+  type YamlSchema,
+  type YamlSchemaProperty,
+} from "@visual-yaml/core";
 
 export function getResolvedSchema(
-  schema: JsonSchema | null,
-  rootSchema: JsonSchemaProperty | undefined,
+  schema: YamlSchema | null,
+  rootSchema: YamlSchemaProperty | undefined,
   path: string,
-): JsonSchemaProperty | undefined {
+): YamlSchemaProperty | undefined {
   if (!schema) return undefined;
   const raw = getPropertySchema(schema, path, rootSchema);
   if (!raw) return undefined;
@@ -33,8 +33,8 @@ export function getDisplayValue(node: TreeNode): string {
 
 export function checkRequired(
   node: TreeNode,
-  schema: JsonSchema | null,
-  rootSchema: JsonSchemaProperty | undefined,
+  schema: YamlSchema | null,
+  rootSchema: YamlSchemaProperty | undefined,
 ): boolean {
   if (!schema || !node.parentId) return false;
   const parentPath = node.path.split("/").slice(0, -1).join("/") || "/";

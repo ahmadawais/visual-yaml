@@ -57,7 +57,7 @@ export async function renderOgImage(title: string) {
             color: "white",
           }}
         >
-          visual-json
+          visual-yaml
         </span>
       </div>
 

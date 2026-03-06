@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { JsonValue, JsonSchema } from "@visual-json/core";
-import { resolveSchema } from "@visual-json/core";
-import { JsonEditor, DiffView } from "@visual-json/react";
+import type { YamlValue, YamlSchema } from "@visual-yaml/core";
+import { resolveSchema } from "@visual-yaml/core";
+import { YamlEditor, DiffView } from "@visual-yaml/react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -41,7 +41,7 @@ const VIEW_MODES: { id: ViewMode; label: string }[] = [
   { id: "raw", label: "Raw" },
 ];
 
-const samples: { name: string; filename: string; data: JsonValue }[] = [
+const samples: { name: string; filename: string; data: YamlValue }[] = [
   {
     name: "package.json",
     filename: "package.json",
@@ -470,11 +470,11 @@ export function Editor({
   defaultSidebarOpen: boolean;
 }) {
   const [activeSample, setActiveSample] = useState(samples[0].filename);
-  const [jsonValue, setJsonValue] = useState<JsonValue>(samples[0].data);
+  const [yamlValue, setYamlValue] = useState<YamlValue>(samples[0].data);
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
-  const [schema, setSchema] = useState<JsonSchema | null>(null);
+  const [schema, setSchema] = useState<YamlSchema | null>(null);
   const [filename, setFilename] = useState(samples[0].filename);
-  const [originalJson, setOriginalJson] = useState<JsonValue>(samples[0].data);
+  const [originalJson, setOriginalJson] = useState<YamlValue>(samples[0].data);
   const [isDragOver, setIsDragOver] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
   const [treeShowValues, setTreeShowValues] = useState(false);
@@ -493,18 +493,18 @@ export function Editor({
 
   useEffect(() => {
     let cancelled = false;
-    resolveSchema(jsonValue, filename).then((s) => {
+    resolveSchema(yamlValue, filename).then((s) => {
       if (!cancelled) setSchema(s);
     });
     return () => {
       cancelled = true;
     };
-  }, [filename, jsonValue]);
+  }, [filename, yamlValue]);
 
   const loadJson = useCallback((text: string, fname: string) => {
     try {
       const parsed = JSON.parse(text);
-      setJsonValue(parsed);
+      setYamlValue(parsed);
       setOriginalJson(structuredClone(parsed));
       setFilename(fname);
       setActiveSample(fname);
@@ -522,7 +522,7 @@ export function Editor({
     if (sample) {
       setActiveSample(fname);
       setFilename(fname);
-      setJsonValue(sample.data);
+      setYamlValue(sample.data);
       setOriginalJson(structuredClone(sample.data));
       setSchema(null);
       setRawText(JSON.stringify(sample.data, null, 2));
@@ -549,7 +549,7 @@ export function Editor({
   }, [pasteText, loadJson]);
 
   const handleDownload = useCallback(() => {
-    const text = JSON.stringify(jsonValue, null, 2);
+    const text = JSON.stringify(yamlValue, null, 2);
     const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -557,20 +557,20 @@ export function Editor({
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [jsonValue, filename]);
+  }, [yamlValue, filename]);
 
   const handleCopyJson = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(jsonValue, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(yamlValue, null, 2));
     } catch {}
-  }, [jsonValue]);
+  }, [yamlValue]);
 
   const handleRawChange = useCallback((newText: string) => {
     setRawText(newText);
     try {
       const parsed = JSON.parse(newText);
       setRawError(null);
-      setJsonValue(parsed);
+      setYamlValue(parsed);
     } catch (e) {
       setRawError(e instanceof Error ? e.message : "Invalid JSON");
     }
@@ -813,11 +813,11 @@ export function Editor({
             />
           </div>
         ) : viewMode === "diff" ? (
-          <DiffView originalJson={originalJson} currentJson={jsonValue} />
+          <DiffView originalJson={originalJson} currentJson={yamlValue} />
         ) : (
-          <JsonEditor
-            value={jsonValue}
-            onChange={setJsonValue}
+          <YamlEditor
+            value={yamlValue}
+            onChange={setYamlValue}
             schema={schema}
             treeShowValues={treeShowValues}
             treeShowCounts={treeShowCounts}

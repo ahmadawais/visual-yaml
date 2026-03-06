@@ -1,0 +1,49 @@
+# @visual-yaml/core
+
+## 0.3.1
+
+### Patch Changes
+
+- Fix published packages containing unresolved `workspace:*` dependencies
+
+## 0.3.0
+
+### Minor Changes
+
+- Vue support — shared core logic powers both `@visual-yaml/react` and `@visual-yaml/vue`.
+- Refactored monorepo package structure: packages moved under `packages/@visual-yaml/`, shared UI utilities extracted to `@internal/ui`.
+
+## 0.2.0
+
+### Minor Changes
+
+- ### Features
+  - Multi-select in TreeView — shift-click range selection, cmd/ctrl-click toggle, bulk drag-and-drop reordering.
+  - Schema-aware enum dropdowns in FormView, including boolean enums.
+  - VS Code extension support — breadcrumbs, form view, and search bar adapted for webview.
+
+  ### Fixes
+  - Prevent dropping a node into its own descendants.
+  - Sync tree mode edits to raw mode.
+  - Mobile focus issues in breadcrumbs, form view, search bar.
+
+  ### Internal
+  - `isDescendant` moved from react to core with unit tests.
+  - New core operations: `insertProperty`, `insertNode`, `reorderChildrenMulti`, `buildSubtree`, `reparentSubtree`.
+
+## 0.1.1
+
+### Patch Changes
+
+- fix published package
+
+## 0.1.0
+
+### Minor Changes
+
+- Initial release of `@visual-yaml/core` — the headless engine for visual-yaml.
+- JSON-to-tree model (`fromYaml` / `toYaml`) with stable node IDs.
+- Full mutation API: `setValue`, `setKey`, `addProperty`, `removeNode`, `moveNode`, `reorderChildren`, `changeType`, `duplicateNode`.
+- Undo / redo via `History` class.
+- Tree search with `searchNodes`.
+- JSON Schema resolution and per-node validation (`resolveSchema`, `validateNode`).

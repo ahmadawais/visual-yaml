@@ -5,9 +5,9 @@ import {
   useRef,
   type CSSProperties,
 } from "react";
-import type { JsonValue, JsonSchema } from "@visual-json/core";
-import { JsonEditor } from "@visual-json/react";
-import { parse as parseJsonc } from "jsonc-parser";
+import type { YamlValue, YamlSchema } from "@visual-yaml/core";
+import { parseYaml, stringifyYaml } from "@visual-yaml/core";
+import { YamlEditor } from "@visual-yaml/react";
 import { vscode } from "./vscode";
 
 const VSCODE_THEME_STYLE: CSSProperties = {
@@ -42,7 +42,7 @@ type Mode = "editor" | "panel";
 
 interface ContentMessage {
   type: "setContent";
-  json: string;
+  yaml: string;
   filename: string;
 }
 
@@ -53,18 +53,18 @@ interface ModeMessage {
 
 interface SchemaResultMessage {
   type: "schemaResult";
-  schema: JsonSchema | null;
+  schema: YamlSchema | null;
 }
 
 type HostMessage = ContentMessage | ModeMessage | SchemaResultMessage;
 
 export function App() {
-  const [jsonValue, setJsonValue] = useState<JsonValue | null>(null);
+  const [yamlValue, setYamlValue] = useState<YamlValue | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
-  const [schema, setSchema] = useState<JsonSchema | null>(null);
+  const [schema, setSchema] = useState<YamlSchema | null>(null);
   const [, setMode] = useState<Mode>("editor");
   const suppressEditRef = useRef(false);
-  const lastJsonRef = useRef<string>("");
+  const lastYamlRef = useRef<string>("");
   const editTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -77,19 +77,19 @@ export function App() {
             return;
           }
           try {
-            if (msg.json === lastJsonRef.current) return;
-            lastJsonRef.current = msg.json;
-            const parsed = parseJsonc(msg.json);
-            setJsonValue(parsed);
+            if (msg.yaml === lastYamlRef.current) return;
+            lastYamlRef.current = msg.yaml;
+            const parsed = parseYaml(msg.yaml);
+            setYamlValue(parsed);
             setParseError(null);
 
             vscode.postMessage({
               type: "requestSchema",
-              json: msg.json,
+              yaml: msg.yaml,
               filename: msg.filename,
             });
           } catch (err) {
-            setParseError(err instanceof Error ? err.message : "Invalid JSON");
+            setParseError(err instanceof Error ? err.message : "Invalid YAML");
           }
           break;
         }
@@ -107,38 +107,38 @@ export function App() {
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  const handleChange = useCallback((value: JsonValue) => {
-    setJsonValue(value);
+  const handleChange = useCallback((value: YamlValue) => {
+    setYamlValue(value);
     if (editTimerRef.current !== null) clearTimeout(editTimerRef.current);
     editTimerRef.current = setTimeout(() => {
-      const json = JSON.stringify(value, null, 2);
-      lastJsonRef.current = json;
+      const yaml = stringifyYaml(value);
+      lastYamlRef.current = yaml;
       suppressEditRef.current = true;
-      vscode.postMessage({ type: "edit", json });
+      vscode.postMessage({ type: "edit", yaml });
     }, 150);
   }, []);
 
   if (parseError) {
     return (
-      <div className="visual-json-error">
+      <div className="visual-yaml-error">
         <div className="error-icon">!</div>
-        <div className="error-title">Cannot parse JSON</div>
+        <div className="error-title">Cannot parse YAML</div>
         <div className="error-message">{parseError}</div>
       </div>
     );
   }
 
-  if (jsonValue === null) {
+  if (yamlValue === null) {
     return (
-      <div className="visual-json-loading">
-        <span>Loading JSON...</span>
+      <div className="visual-yaml-loading">
+        <span>Loading YAML...</span>
       </div>
     );
   }
 
   return (
-    <JsonEditor
-      value={jsonValue}
+    <YamlEditor
+      value={yamlValue}
       onChange={handleChange}
       schema={schema}
       treeShowValues={false}

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { reactive, useTemplateRef } from "vue";
-import { JsonEditor, DiffView } from "@visual-json/vue";
-import { useJsonDocument } from "../composables/use-json-document";
-import type { Sample } from "../composables/use-json-document";
+import { YamlEditor, DiffView } from "@visual-yaml/vue";
+import { useYamlDocument } from "../composables/use-yaml-document";
+import type { Sample } from "../composables/use-yaml-document";
 
 type ViewMode = "tree" | "raw" | "diff";
 
@@ -91,10 +91,10 @@ const samples: Sample[] = [
 ];
 
 const {
-  jsonValue, originalJson, filename, activeSample, schema,
+  yamlValue, originalJson, filename, activeSample, schema,
   rawText, rawError, parseError,
   loadJson, loadSample, handleJsonChange, handleRawChange,
-} = useJsonDocument(samples[0]);
+} = useYamlDocument(samples[0]);
 
 const ui = reactive({
   viewMode: "tree" as ViewMode,
@@ -131,7 +131,7 @@ function handlePasteSubmit() {
 }
 
 function handleDownload() {
-  const text = JSON.stringify(jsonValue.value, null, 2);
+  const text = JSON.stringify(yamlValue.value, null, 2);
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -143,7 +143,7 @@ function handleDownload() {
 
 async function handleCopyJson() {
   try {
-    await navigator.clipboard.writeText(JSON.stringify(jsonValue.value, null, 2));
+    await navigator.clipboard.writeText(JSON.stringify(yamlValue.value, null, 2));
   } catch {}
 }
 
@@ -286,14 +286,14 @@ function handleFileDrop(e: DragEvent) {
       <DiffView
         v-else-if="ui.viewMode === 'diff'"
         :original-json="originalJson"
-        :current-json="jsonValue"
+        :current-json="yamlValue"
         :style="{ height: '100%' }"
       />
 
       <!-- Tree/form editor -->
-      <JsonEditor
+      <YamlEditor
         v-else
-        :value="jsonValue"
+        :value="yamlValue"
         :schema="schema"
         :tree-show-values="ui.treeShowValues"
         :tree-show-counts="ui.treeShowCounts"

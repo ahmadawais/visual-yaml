@@ -1,4 +1,4 @@
-import type { TreeNode, TreeState } from "@visual-json/core";
+import type { TreeNode, TreeState } from "@visual-yaml/core";
 
 export function getVisibleNodes(
   root: TreeNode,

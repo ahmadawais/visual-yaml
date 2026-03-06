@@ -1,16 +1,16 @@
 {
-  "name": "@visual-json/example-vue",
+  "name": "@visual-yaml/example-vue",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "portless vue-example.visual-json vite",
+    "dev": "portless vue-example.visual-yaml vite",
     "build": "vite build",
     "preview": "vite preview",
     "check-types": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@visual-json/core": "workspace:*",
-    "@visual-json/vue": "workspace:*",
+    "@visual-yaml/core": "workspace:*",
+    "@visual-yaml/vue": "workspace:*",
     "vue": "^3.5.13"
   },
   "devDependencies": {

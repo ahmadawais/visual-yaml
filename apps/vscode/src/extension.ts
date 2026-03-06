@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
-import { VisualJsonEditorProvider } from "./custom-editor-provider";
-import { VisualJsonPanelProvider } from "./panel-provider";
+import { VisualYamlEditorProvider } from "./custom-editor-provider";
+import { VisualYamlPanelProvider } from "./panel-provider";
 
 export function activate(context: vscode.ExtensionContext) {
-  const editorProvider = new VisualJsonEditorProvider(context);
-  const panelProvider = new VisualJsonPanelProvider(context);
+  const editorProvider = new VisualYamlEditorProvider(context);
+  const panelProvider = new VisualYamlPanelProvider(context);
 
   context.subscriptions.push(
     vscode.window.registerCustomEditorProvider(
-      VisualJsonEditorProvider.viewType,
+      VisualYamlEditorProvider.viewType,
       editorProvider,
       {
         webviewOptions: { retainContextWhenHidden: true },
@@ -19,28 +19,27 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      VisualJsonPanelProvider.viewType,
+      VisualYamlPanelProvider.viewType,
       panelProvider,
       { webviewOptions: { retainContextWhenHidden: true } },
     ),
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("visualJson.openWithVisualJson", () => {
+    vscode.commands.registerCommand("visualYaml.openWithVisualYaml", () => {
       const activeEditor = vscode.window.activeTextEditor;
       if (
         activeEditor &&
-        (activeEditor.document.languageId === "json" ||
-          activeEditor.document.languageId === "jsonc")
+        activeEditor.document.languageId === "yaml"
       ) {
         vscode.commands.executeCommand(
           "vscode.openWith",
           activeEditor.document.uri,
-          VisualJsonEditorProvider.viewType,
+          VisualYamlEditorProvider.viewType,
         );
       } else {
         vscode.window.showInformationMessage(
-          "Open a JSON file first to use visual-json.",
+          "Open a YAML file first to use visual-yaml.",
         );
       }
     }),

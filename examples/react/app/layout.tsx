@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "visual-json",
-  description: "The visual JSON editor",
+  title: "visual-yaml",
+  description: "The visual YAML editor",
 };
 
 export default function RootLayout({

@@ -1,14 +1,14 @@
 {
-  "name": "@visual-json/web",
+  "name": "@visual-yaml/web",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "portless visual-json next dev --turbopack",
+    "dev": "portless visual-yaml next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "check-types": "next typegen && tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -18,8 +18,8 @@
     "@next/mdx": "^16.1.6",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.2",
-    "@visual-json/core": "workspace:*",
-    "@visual-json/react": "workspace:*",
+    "@visual-yaml/core": "workspace:*",
+    "@visual-yaml/react": "workspace:*",
     "ai": "^6.0.94",
     "bash-tool": "^1.3.15",
     "class-variance-authority": "^0.7.1",

@@ -1,15 +1,15 @@
 import * as vscode from "vscode";
-import type { JsonSchema } from "@visual-json/core";
+import type { YamlSchema } from "@visual-yaml/core";
 
 export type HostToWebviewMessage =
-  | { type: "setContent"; json: string; filename: string }
+  | { type: "setContent"; yaml: string; filename: string }
   | { type: "setMode"; mode: "editor" | "panel" }
-  | { type: "schemaResult"; schema: JsonSchema | null };
+  | { type: "schemaResult"; schema: YamlSchema | null };
 
 export type WebviewToHostMessage =
   | { type: "ready" }
-  | { type: "edit"; json: string }
-  | { type: "requestSchema"; json: string; filename: string };
+  | { type: "edit"; yaml: string }
+  | { type: "requestSchema"; yaml: string; filename: string };
 
 export function getWebviewHtml(
   webview: vscode.Webview,
@@ -31,7 +31,7 @@ export function getWebviewHtml(
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
   <link rel="stylesheet" href="${styleUri}">
-  <title>visual-json</title>
+  <title>visual-yaml</title>
 </head>
 <body>
   <div id="root"></div>

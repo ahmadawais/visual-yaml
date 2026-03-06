@@ -1,10 +1,10 @@
-import type { TreeNode, TreeState } from "@visual-json/core";
+import type { TreeNode, TreeState } from "@visual-yaml/core";
 import {
   reorderChildrenMulti,
   removeNode,
   insertNode,
   isDescendant,
-} from "@visual-json/core";
+} from "@visual-yaml/core";
 import { DEFAULT_CSS_VARS } from "./theme";
 
 export interface DragState {

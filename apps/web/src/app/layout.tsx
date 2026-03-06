@@ -10,34 +10,34 @@ import { PAGE_TITLES } from "@/lib/page-titles";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://visual-json.dev"),
+  metadataBase: new URL("https://visual-yaml.dev"),
   title: {
-    default: `visual-json | ${PAGE_TITLES[""]!.replace(/\n/g, " ")}`,
-    template: "%s | visual-json",
+    default: `visual-yaml | ${PAGE_TITLES[""]!.replace(/\n/g, " ")}`,
+    template: "%s | visual-yaml",
   },
-  description: "The visual JSON editor. Schema-aware, embeddable, extensible.",
+  description: "The visual YAML editor. Schema-aware, embeddable, extensible.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://visual-json.dev",
-    siteName: "visual-json",
-    title: "visual-json | The Visual JSON Editor",
+    url: "https://visual-yaml.dev",
+    siteName: "visual-yaml",
+    title: "visual-yaml | The Visual YAML Editor",
     description:
-      "The visual JSON editor. Schema-aware, embeddable, extensible.",
+      "The visual YAML editor. Schema-aware, embeddable, extensible.",
     images: [
       {
         url: "/og",
         width: 1200,
         height: 630,
-        alt: "visual-json - The Visual JSON Editor for Humans",
+        alt: "visual-yaml - The Visual YAML Editor for Humans",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "visual-json | The Visual JSON Editor for Humans",
+    title: "visual-yaml | The Visual YAML Editor for Humans",
     description:
-      "A visual JSON editor for humans. Tree view, form view, diff view, and more.",
+      "A visual YAML editor for humans. Tree view, form view, diff view, and more.",
     images: ["/og"],
   },
 };
@@ -83,7 +83,7 @@ function Header() {
           </span>
           <Link href="/">
             <span className={`${GeistPixelSquare.className} text-lg`}>
-              visual-json
+              visual-yaml
             </span>
           </Link>
         </div>
@@ -95,7 +95,7 @@ function Header() {
             Docs
           </Link>
           <a
-            href="https://github.com/vercel-labs/visual-json"
+            href="https://github.com/vercel-labs/visual-yaml"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition-colors dark:text-neutral-400 dark:hover:text-neutral-100"

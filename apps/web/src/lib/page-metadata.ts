@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { PAGE_TITLES } from "./page-titles";
 
 const DESCRIPTION =
-  "A visual JSON editor for humans. Tree view, form view, diff view, and more.";
+  "A visual YAML editor for humans. Tree view, form view, diff view, and more.";
 
 export function pageMetadata(slug: string): Metadata {
   const title = PAGE_TITLES[slug];
   if (!title) return {};
 
   const displayTitle = title.replace(/\n/g, " ");
-  const fullTitle = `${displayTitle} | visual-json`;
+  const fullTitle = `${displayTitle} | visual-yaml`;
   const ogImageUrl = slug ? `/og/${slug}` : "/og";
 
   return {
@@ -17,7 +17,7 @@ export function pageMetadata(slug: string): Metadata {
     openGraph: {
       type: "website",
       locale: "en_US",
-      siteName: "visual-json",
+      siteName: "visual-yaml",
       title: fullTitle,
       description: DESCRIPTION,
       images: [
@@ -25,7 +25,7 @@ export function pageMetadata(slug: string): Metadata {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${displayTitle} - visual-json`,
+          alt: `${displayTitle} - visual-yaml`,
         },
       ],
     },

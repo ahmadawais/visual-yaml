@@ -5,4 +5,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @visual-json/core@0.3.1
+  - @visual-yaml/core@0.3.1
