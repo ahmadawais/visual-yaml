@@ -102,7 +102,7 @@ const {
 	parseError,
 	loadYaml,
 	loadSample,
-	handleJsonChange,
+	handleYamlChange,
 	handleRawChange,
 } = useYamlDocument(samples[0]);
 
@@ -313,7 +313,7 @@ function handleFileDrop(e: DragEvent) {
         :editor-show-counts="ui.editorShowCounts"
         :sidebar-open="ui.sidebarOpen"
         :style="{ height: '100%' }"
-        @change="handleJsonChange"
+        @change="handleYamlChange"
       />
     </div>
 

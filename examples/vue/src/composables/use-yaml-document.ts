@@ -46,7 +46,7 @@ export function useYamlDocument(initial: Sample) {
 		{ immediate: true },
 	);
 
-	function loadJson(text: string, fname: string) {
+	function loadYaml(text: string, fname: string) {
 		try {
 			setDocument(parseYaml(text), fname);
 		} catch {
@@ -59,7 +59,7 @@ export function useYamlDocument(initial: Sample) {
 		if (sample) setDocument(sample.data, fname);
 	}
 
-	function handleJsonChange(val: YamlValue) {
+	function handleYamlChange(val: YamlValue) {
 		yamlValue.value = val;
 		rawText.value = stringifyYaml(val);
 	}
@@ -84,9 +84,9 @@ export function useYamlDocument(initial: Sample) {
 		rawText,
 		rawError,
 		parseError,
-		loadJson,
+		loadYaml,
 		loadSample,
-		handleJsonChange,
+		handleYamlChange,
 		handleRawChange,
 	};
 }
