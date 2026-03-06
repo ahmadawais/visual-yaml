@@ -1,12 +1,12 @@
-# @visual-json/vscode
+# @visual-yaml/vscode
 
-VS Code extension for [visual-json](https://github.com/vercel-labs/visual-json) — the visual JSON editor.
+VS Code extension for [visual-yaml](https://github.com/vercel-labs/visual-yaml) — the visual YAML editor.
 
-> **Beta** — This extension is under active development. Feedback, bug reports, and feature requests are welcome at [github.com/vercel-labs/visual-json/issues](https://github.com/vercel-labs/visual-json/issues).
+> **Beta** — This extension is under active development. Feedback, bug reports, and feature requests are welcome at [github.com/vercel-labs/visual-yaml/issues](https://github.com/vercel-labs/visual-yaml/issues).
 
 ## Features
 
-- **Visual editor** for `.json` and `.jsonc` files via "Open With..." > "visual-json"
+- **Visual editor** for `.json` and `.jsonc` files via "Open With..." > "visual-yaml"
 - **Tree sidebar** with expand/collapse, drag-and-drop, keyboard navigation, and search
 - **Form editor** with inline editing, schema-aware inputs, and breadcrumb navigation
 - **Schema support** — auto-detects schemas from `$schema` or known filenames (`package.json`, `tsconfig.json`, etc.)
@@ -19,7 +19,7 @@ From the monorepo root:
 
 ```bash
 pnpm install
-pnpm --filter @visual-json/vscode dev
+pnpm --filter @visual-yaml/vscode dev
 ```
 
 Then open `apps/vscode` in VS Code and press `F5` to launch the Extension Development Host.
@@ -27,7 +27,7 @@ Then open `apps/vscode` in VS Code and press `F5` to launch the Extension Develo
 ## Build
 
 ```bash
-pnpm --filter @visual-json/vscode build
+pnpm --filter @visual-yaml/vscode build
 ```
 
 ## License

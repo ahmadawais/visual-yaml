@@ -1,16 +1,16 @@
 {
-  "name": "@visual-json/example-react",
+  "name": "@visual-yaml/example-react",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "portless react-example.visual-json next dev --turbopack",
+    "dev": "portless react-example.visual-yaml next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@visual-json/core": "workspace:*",
-    "@visual-json/react": "workspace:*",
+    "@visual-yaml/core": "workspace:*",
+    "@visual-yaml/react": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",

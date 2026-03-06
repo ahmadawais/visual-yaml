@@ -1,196 +1,208 @@
 <script setup lang="ts">
+import { stringifyYaml } from "@visual-yaml/core";
+import { DiffView, YamlEditor } from "@visual-yaml/vue";
 import { reactive, useTemplateRef } from "vue";
-import { JsonEditor, DiffView } from "@visual-json/vue";
-import { useJsonDocument } from "../composables/use-json-document";
-import type { Sample } from "../composables/use-json-document";
+import type { Sample } from "../composables/use-yaml-document";
+import { useYamlDocument } from "../composables/use-yaml-document";
 
 type ViewMode = "tree" | "raw" | "diff";
 
 const VIEW_MODES: { id: ViewMode; label: string }[] = [
-  { id: "tree", label: "Tree" },
-  { id: "raw", label: "Raw" },
-  { id: "diff", label: "Diff" },
+	{ id: "tree", label: "Tree" },
+	{ id: "raw", label: "Raw" },
+	{ id: "diff", label: "Diff" },
 ];
 
 const samples: Sample[] = [
-  {
-    name: "package.json",
-    filename: "package.json",
-    data: {
-      name: "my-app",
-      version: "1.0.0",
-      private: true,
-      scripts: {
-        dev: "vite dev",
-        build: "vite build",
-        preview: "vite preview",
-      },
-      dependencies: {
-        vue: "^3.5.0",
-        vite: "^6.0.0",
-      },
-      devDependencies: {
-        "@vitejs/plugin-vue": "^5.0.0",
-        typescript: "^5.6.0",
-      },
-      engines: { node: ">=18" },
-    },
-  },
-  {
-    name: "tsconfig.json",
-    filename: "tsconfig.json",
-    data: {
-      compilerOptions: {
-        target: "ES2020",
-        lib: ["DOM", "DOM.Iterable", "ES2020"],
-        module: "ESNext",
-        moduleResolution: "bundler",
-        jsx: "preserve",
-        strict: true,
-        esModuleInterop: true,
-        skipLibCheck: true,
-        forceConsistentCasingInFileNames: true,
-        resolveJsonModule: true,
-        isolatedModules: true,
-        noEmit: true,
-        baseUrl: ".",
-        paths: { "@/*": ["./*"] },
-      },
-      include: ["src/**/*.ts", "src/**/*.vue"],
-      exclude: ["node_modules", "dist"],
-    },
-  },
-  {
-    name: "json-render spec",
-    filename: "spec.json",
-    data: {
-      root: "card_1",
-      elements: {
-        card_1: {
-          type: "Card",
-          props: { title: "User Profile" },
-          children: ["stack_1"],
-        },
-        stack_1: {
-          type: "Stack",
-          props: { gap: 16 },
-          children: ["avatar_1", "heading_1", "text_1"],
-        },
-        avatar_1: {
-          type: "Avatar",
-          props: { src: "https://example.com/avatar.jpg", alt: "Jane Doe" },
-        },
-        heading_1: { type: "Heading", props: { level: 2, text: "Jane Doe" } },
-        text_1: {
-          type: "Text",
-          props: { text: "Senior Software Engineer" },
-        },
-      },
-    },
-  },
+	{
+		name: "docker-compose.yaml",
+		filename: "docker-compose.yaml",
+		data: {
+			name: "my-app",
+			version: "1.0.0",
+			private: true,
+			scripts: {
+				dev: "vite dev",
+				build: "vite build",
+				preview: "vite preview",
+			},
+			dependencies: {
+				vue: "^3.5.0",
+				vite: "^6.0.0",
+			},
+			devDependencies: {
+				"@vitejs/plugin-vue": "^5.0.0",
+				typescript: "^5.6.0",
+			},
+			engines: { node: ">=18" },
+		},
+	},
+	{
+		name: "github-workflow.yaml",
+		filename: "github-workflow.yaml",
+		data: {
+			compilerOptions: {
+				target: "ES2020",
+				lib: ["DOM", "DOM.Iterable", "ES2020"],
+				module: "ESNext",
+				moduleResolution: "bundler",
+				jsx: "preserve",
+				strict: true,
+				esModuleInterop: true,
+				skipLibCheck: true,
+				forceConsistentCasingInFileNames: true,
+				resolveJsonModule: true,
+				isolatedModules: true,
+				noEmit: true,
+				baseUrl: ".",
+				paths: { "@/*": ["./*"] },
+			},
+			include: ["src/**/*.ts", "src/**/*.vue"],
+			exclude: ["node_modules", "dist"],
+		},
+	},
+	{
+		name: "json-render spec",
+		filename: "spec.yaml",
+		data: {
+			root: "card_1",
+			elements: {
+				card_1: {
+					type: "Card",
+					props: { title: "User Profile" },
+					children: ["stack_1"],
+				},
+				stack_1: {
+					type: "Stack",
+					props: { gap: 16 },
+					children: ["avatar_1", "heading_1", "text_1"],
+				},
+				avatar_1: {
+					type: "Avatar",
+					props: { src: "https://example.com/avatar.jpg", alt: "Jane Doe" },
+				},
+				heading_1: { type: "Heading", props: { level: 2, text: "Jane Doe" } },
+				text_1: {
+					type: "Text",
+					props: { text: "Senior Software Engineer" },
+				},
+			},
+		},
+	},
 ];
 
 const {
-  jsonValue, originalJson, filename, activeSample, schema,
-  rawText, rawError, parseError,
-  loadJson, loadSample, handleJsonChange, handleRawChange,
-} = useJsonDocument(samples[0]);
+	yamlValue,
+	originalYaml,
+	filename,
+	activeSample,
+	schema,
+	rawText,
+	rawError,
+	parseError,
+	loadYaml,
+	loadSample,
+	handleYamlChange,
+	handleRawChange,
+} = useYamlDocument(samples[0]);
 
 const ui = reactive({
-  viewMode: "tree" as ViewMode,
-  sidebarOpen: true,
-  isDragOver: false,
-  pasteDialogOpen: false,
-  pasteText: "",
-  settingsOpen: false,
-  treeShowValues: false,
-  treeShowCounts: false,
-  editorShowDescriptions: false,
-  editorShowCounts: false,
+	viewMode: "tree" as ViewMode,
+	sidebarOpen: true,
+	isDragOver: false,
+	pasteDialogOpen: false,
+	pasteText: "",
+	settingsOpen: false,
+	treeShowValues: false,
+	treeShowCounts: false,
+	editorShowDescriptions: false,
+	editorShowCounts: false,
 });
 
 const dropZone = useTemplateRef<HTMLDivElement>("dropZone");
 const fileInput = useTemplateRef<HTMLInputElement>("fileInput");
 
 async function handlePaste() {
-  try {
-    const text = await navigator.clipboard.readText();
-    loadJson(text, "pasted.json");
-  } catch {
-    ui.pasteText = "";
-    ui.pasteDialogOpen = true;
-  }
+	try {
+		const text = await navigator.clipboard.readText();
+		loadYaml(text, "pasted.yaml");
+	} catch {
+		ui.pasteText = "";
+		ui.pasteDialogOpen = true;
+	}
 }
 
 function handlePasteSubmit() {
-  if (ui.pasteText.trim()) {
-    loadJson(ui.pasteText, "pasted.json");
-  }
-  ui.pasteDialogOpen = false;
-  ui.pasteText = "";
+	if (ui.pasteText.trim()) {
+		loadYaml(ui.pasteText, "pasted.yaml");
+	}
+	ui.pasteDialogOpen = false;
+	ui.pasteText = "";
 }
 
 function handleDownload() {
-  const text = JSON.stringify(jsonValue.value, null, 2);
-  const blob = new Blob([text], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename.value;
-  a.click();
-  URL.revokeObjectURL(url);
+	const text = stringifyYaml(yamlValue.value);
+	const blob = new Blob([text], { type: "application/yaml" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename.value;
+	a.click();
+	URL.revokeObjectURL(url);
 }
 
-async function handleCopyJson() {
-  try {
-    await navigator.clipboard.writeText(JSON.stringify(jsonValue.value, null, 2));
-  } catch {}
+async function handleCopyYaml() {
+	try {
+		await navigator.clipboard.writeText(stringifyYaml(yamlValue.value));
+	} catch {}
 }
 
 function handleFileInput(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") loadJson(reader.result, file.name);
-    };
-    reader.readAsText(file);
-  }
-  (e.target as HTMLInputElement).value = "";
+	const file = (e.target as HTMLInputElement).files?.[0];
+	if (file) {
+		const reader = new FileReader();
+		reader.onload = () => {
+			if (typeof reader.result === "string") loadYaml(reader.result, file.name);
+		};
+		reader.readAsText(file);
+	}
+	(e.target as HTMLInputElement).value = "";
 }
 
 // Drag-and-drop file onto page
 function handleDragOver(e: DragEvent) {
-  if (!e.dataTransfer?.types.includes("Files")) return;
-  ui.isDragOver = true;
+	if (!e.dataTransfer?.types.includes("Files")) return;
+	ui.isDragOver = true;
 }
 
 function handleDragLeave(e: DragEvent) {
-  if (!e.dataTransfer?.types.includes("Files")) return;
-  if (e.relatedTarget === null || !dropZone.value?.contains(e.relatedTarget as Node)) {
-    ui.isDragOver = false;
-  }
+	if (!e.dataTransfer?.types.includes("Files")) return;
+	if (
+		e.relatedTarget === null ||
+		!dropZone.value?.contains(e.relatedTarget as Node)
+	) {
+		ui.isDragOver = false;
+	}
 }
 
 function handleFileDrop(e: DragEvent) {
-  ui.isDragOver = false;
-  const file = e.dataTransfer?.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") loadJson(reader.result, file.name);
-    };
-    reader.readAsText(file);
-  }
+	ui.isDragOver = false;
+	const file = e.dataTransfer?.files[0];
+	if (file) {
+		const reader = new FileReader();
+		reader.onload = () => {
+			if (typeof reader.result === "string") loadYaml(reader.result, file.name);
+		};
+		reader.readAsText(file);
+	}
 }
-
 </script>
 
 <template>
   <div ref="dropZone" class="flex flex-col h-full bg-[var(--bg)] text-[var(--text)]" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave" @drop.prevent="handleFileDrop">
     <!-- Drop overlay -->
     <div v-if="ui.isDragOver" class="absolute inset-0 z-50 flex items-center justify-center bg-[var(--drop-overlay-bg)] pointer-events-none">
-      <div class="border-2 border-dashed border-[#007acc] rounded-lg px-12 py-8 text-base font-mono text-[#ccc]">Drop JSON file here</div>
+      <div class="border-2 border-dashed border-[#007acc] rounded-lg px-12 py-8 text-base font-mono text-[#ccc]">Drop YAML file here</div>
     </div>
 
     <!-- Parse error -->
@@ -226,20 +238,20 @@ function handleFileDrop(e: DragEvent) {
       <input
         ref="fileInput"
         type="file"
-        accept=".json,.jsonc,.json5"
+        accept=".yaml,.yml"
         class="hidden"
         @change="handleFileInput"
       />
       <button class="toolbar-btn" title="Open file" @click="() => fileInput?.click()">
         <div class="i-lucide-folder-open" />
       </button>
-      <button class="toolbar-btn" title="Paste JSON" @click="handlePaste">
+      <button class="toolbar-btn" title="Paste YAML" @click="handlePaste">
         <div class="i-lucide-clipboard-paste" />
       </button>
       <button class="toolbar-btn" title="Download" @click="handleDownload">
         <div class="i-lucide-download" />
       </button>
-      <button class="toolbar-btn" title="Copy JSON" @click="handleCopyJson">
+      <button class="toolbar-btn" title="Copy YAML" @click="handleCopyYaml">
         <div class="i-lucide-copy" />
       </button>
 
@@ -285,15 +297,15 @@ function handleFileDrop(e: DragEvent) {
       <!-- Diff view -->
       <DiffView
         v-else-if="ui.viewMode === 'diff'"
-        :original-json="originalJson"
-        :current-json="jsonValue"
+        :original-yaml="originalYaml"
+        :current-yaml="yamlValue"
         :style="{ height: '100%' }"
       />
 
       <!-- Tree/form editor -->
-      <JsonEditor
+      <YamlEditor
         v-else
-        :value="jsonValue"
+        :value="yamlValue"
         :schema="schema"
         :tree-show-values="ui.treeShowValues"
         :tree-show-counts="ui.treeShowCounts"
@@ -301,7 +313,7 @@ function handleFileDrop(e: DragEvent) {
         :editor-show-counts="ui.editorShowCounts"
         :sidebar-open="ui.sidebarOpen"
         :style="{ height: '100%' }"
-        @change="handleJsonChange"
+        @change="handleYamlChange"
       />
     </div>
 
@@ -312,7 +324,7 @@ function handleFileDrop(e: DragEvent) {
       @click.self="() => (ui.pasteDialogOpen = false)"
     >
       <div class="settings-panel min-w-100">
-        <h3>Paste JSON</h3>
+        <h3>Paste YAML</h3>
         <textarea
           :value="ui.pasteText"
           placeholder="Paste your JSON here..."

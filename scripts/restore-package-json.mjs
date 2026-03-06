@@ -10,5 +10,5 @@ const pkgJsonPath = join(process.cwd(), "package.json");
 const backupPath = pkgJsonPath + ".bak";
 
 if (existsSync(backupPath)) {
-  renameSync(backupPath, pkgJsonPath);
+	renameSync(backupPath, pkgJsonPath);
 }

@@ -2,29 +2,29 @@ export { metadata } from "./metadata";
 
 # Vue Components
 
-`@visual-json/vue` provides a complete set of Vue 3 components for building visual JSON
-editors. All components are designed to work together inside a `VisualJson` provider.
+`@visual-yaml/vue` provides a complete set of Vue 3 components for building visual JSON
+editors. All components are designed to work together inside a `VisualYaml` provider.
 
 ```bash
-npm install @visual-json/vue @visual-json/core
+npm install @visual-yaml/vue @visual-yaml/core
 ```
 
 **Peer dependency:** Vue 3.3 or later.
 
-## VisualJson
+## VisualYaml
 
 The root provider that manages tree state, selection, expansion, undo/redo, search, and schema.
 All other components must be rendered inside this provider.
 
 ```vue
 <script setup>
-import { VisualJson } from "@visual-json/vue";
+import { VisualYaml } from "@visual-yaml/vue";
 </script>
 
 <template>
-  <VisualJson :value="json" :schema="schema" @change="onJsonChange">
+  <VisualYaml :value="json" :schema="schema" @change="onJsonChange">
     <!-- child components -->
-  </VisualJson>
+  </VisualYaml>
 </template>
 ```
 
@@ -33,8 +33,8 @@ import { VisualJson } from "@visual-json/vue";
     <tr><th>Prop</th><th>Type</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>value</code></td><td><code>JsonValue</code></td><td>The JSON data to edit</td></tr>
-    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional JSON Schema for validation and form hints</td></tr>
+    <tr><td><code>value</code></td><td><code>YamlValue</code></td><td>The YAML data to edit</td></tr>
+    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional YAML schema for validation and form hints</td></tr>
   </tbody>
 </table>
 
@@ -43,24 +43,24 @@ import { VisualJson } from "@visual-json/vue";
     <tr><th>Event</th><th>Payload</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>change</code></td><td><code>JsonValue</code></td><td>Emitted when the data changes</td></tr>
+    <tr><td><code>change</code></td><td><code>YamlValue</code></td><td>Emitted when the data changes</td></tr>
   </tbody>
 </table>
 
-## JsonEditor
+## YamlEditor
 
 Batteries-included component — bundles a tree sidebar, form editor, search bar, and responsive layout.
 
 ```vue
 <script setup>
 import { ref } from "vue";
-import { JsonEditor } from "@visual-json/vue";
+import { YamlEditor } from "@visual-yaml/vue";
 
 const value = ref({ hello: "world" });
 </script>
 
 <template>
-  <JsonEditor :value="value" @change="value = $event" />
+  <YamlEditor :value="value" @change="value = $event" />
 </template>
 ```
 
@@ -69,9 +69,9 @@ const value = ref({ hello: "world" });
     <tr><th>Prop</th><th>Type</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>value</code></td><td><code>JsonValue</code></td><td>Controlled JSON value</td></tr>
-    <tr><td><code>defaultValue</code></td><td><code>JsonValue</code></td><td>Uncontrolled initial value</td></tr>
-    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional JSON Schema for validation and hints</td></tr>
+    <tr><td><code>value</code></td><td><code>YamlValue</code></td><td>Controlled YAML value</td></tr>
+    <tr><td><code>defaultValue</code></td><td><code>YamlValue</code></td><td>Uncontrolled initial value</td></tr>
+    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional YAML schema for validation and hints</td></tr>
     <tr><td><code>readOnly</code></td><td><code>boolean</code></td><td>Disable editing</td></tr>
     <tr><td><code>sidebarOpen</code></td><td><code>boolean</code></td><td>Show/hide tree sidebar</td></tr>
     <tr><td><code>treeShowValues</code></td><td><code>boolean</code></td><td>Display values in tree nodes</td></tr>
@@ -88,7 +88,7 @@ const value = ref({ hello: "world" });
     <tr><th>Event</th><th>Payload</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>change</code></td><td><code>JsonValue</code></td><td>Emitted when the data changes</td></tr>
+    <tr><td><code>change</code></td><td><code>YamlValue</code></td><td>Emitted when the data changes</td></tr>
   </tbody>
 </table>
 
@@ -116,11 +116,11 @@ enum dropdowns when a schema is provided.
 
 ## DiffView
 
-Side-by-side comparison of two JSON values with color-coded additions, removals, and changes.
+Side-by-side comparison of two YAML values with color-coded additions, removals, and changes.
 
 ```vue
 <template>
-  <DiffView :original-json="original" :current-json="current" />
+  <DiffView :original-yaml="original" :current-yaml="current" />
 </template>
 ```
 
@@ -129,8 +129,8 @@ Side-by-side comparison of two JSON values with color-coded additions, removals,
     <tr><th>Prop</th><th>Type</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>originalJson</code></td><td><code>unknown</code></td><td>The original JSON value</td></tr>
-    <tr><td><code>currentJson</code></td><td><code>unknown</code></td><td>The current/modified JSON value</td></tr>
+    <tr><td><code>originalYaml</code></td><td><code>unknown</code></td><td>The original YAML value</td></tr>
+    <tr><td><code>currentYaml</code></td><td><code>unknown</code></td><td>The current/modified YAML value</td></tr>
     <tr><td><code>class</code></td><td><code>string</code></td><td>Optional CSS class</td></tr>
   </tbody>
 </table>
@@ -176,11 +176,11 @@ Rendered by TreeView on right-click. Can also be used standalone via `<Teleport>
 
 ## useStudio Composable
 
-Access the full studio state and actions from any component inside `VisualJson`.
+Access the full studio state and actions from any component inside `VisualYaml`.
 
 ```vue
 <script setup>
-import { useStudio } from "@visual-json/vue";
+import { useStudio } from "@visual-yaml/vue";
 
 const { state, actions } = useStudio();
 </script>
@@ -202,7 +202,7 @@ const { state, actions } = useStudio();
     <tr><td><code>tree</code></td><td><code>Ref&lt;TreeState&gt;</code></td><td>Current tree state</td></tr>
     <tr><td><code>selectedNodeId</code></td><td><code>Ref&lt;string | null&gt;</code></td><td>Currently selected node</td></tr>
     <tr><td><code>expandedNodeIds</code></td><td><code>Ref&lt;Set&lt;string&gt;&gt;</code></td><td>Set of expanded node IDs</td></tr>
-    <tr><td><code>schema</code></td><td><code>Ref&lt;JsonSchema | null&gt;</code></td><td>Active JSON Schema</td></tr>
+    <tr><td><code>schema</code></td><td><code>Ref&lt;JsonSchema | null&gt;</code></td><td>Active YAML schema</td></tr>
     <tr><td><code>searchQuery</code></td><td><code>Ref&lt;string&gt;</code></td><td>Current search query</td></tr>
     <tr><td><code>searchMatches</code></td><td><code>Ref&lt;SearchMatch[]&gt;</code></td><td>Search results</td></tr>
     <tr><td><code>searchMatchIndex</code></td><td><code>Ref&lt;number&gt;</code></td><td>Index of the active match</td></tr>
@@ -239,7 +239,7 @@ const { state, actions } = useStudio();
 All components read CSS custom properties for colors, fonts, and spacing. Override them via the `style` prop or on a parent element:
 
 ```vue
-<JsonEditor
+<YamlEditor
   :value="data"
   :style="{
     '--vj-bg': '#ffffff',

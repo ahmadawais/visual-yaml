@@ -1,50 +1,46 @@
 import * as vscode from "vscode";
-import { VisualJsonEditorProvider } from "./custom-editor-provider";
-import { VisualJsonPanelProvider } from "./panel-provider";
+import { VisualYamlEditorProvider } from "./custom-editor-provider";
+import { VisualYamlPanelProvider } from "./panel-provider";
 
 export function activate(context: vscode.ExtensionContext) {
-  const editorProvider = new VisualJsonEditorProvider(context);
-  const panelProvider = new VisualJsonPanelProvider(context);
+	const editorProvider = new VisualYamlEditorProvider(context);
+	const panelProvider = new VisualYamlPanelProvider(context);
 
-  context.subscriptions.push(
-    vscode.window.registerCustomEditorProvider(
-      VisualJsonEditorProvider.viewType,
-      editorProvider,
-      {
-        webviewOptions: { retainContextWhenHidden: true },
-        supportsMultipleEditorsPerDocument: false,
-      },
-    ),
-  );
+	context.subscriptions.push(
+		vscode.window.registerCustomEditorProvider(
+			VisualYamlEditorProvider.viewType,
+			editorProvider,
+			{
+				webviewOptions: { retainContextWhenHidden: true },
+				supportsMultipleEditorsPerDocument: false,
+			},
+		),
+	);
 
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      VisualJsonPanelProvider.viewType,
-      panelProvider,
-      { webviewOptions: { retainContextWhenHidden: true } },
-    ),
-  );
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			VisualYamlPanelProvider.viewType,
+			panelProvider,
+			{ webviewOptions: { retainContextWhenHidden: true } },
+		),
+	);
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand("visualJson.openWithVisualJson", () => {
-      const activeEditor = vscode.window.activeTextEditor;
-      if (
-        activeEditor &&
-        (activeEditor.document.languageId === "json" ||
-          activeEditor.document.languageId === "jsonc")
-      ) {
-        vscode.commands.executeCommand(
-          "vscode.openWith",
-          activeEditor.document.uri,
-          VisualJsonEditorProvider.viewType,
-        );
-      } else {
-        vscode.window.showInformationMessage(
-          "Open a JSON file first to use visual-json.",
-        );
-      }
-    }),
-  );
+	context.subscriptions.push(
+		vscode.commands.registerCommand("visualYaml.openWithVisualYaml", () => {
+			const activeEditor = vscode.window.activeTextEditor;
+			if (activeEditor && activeEditor.document.languageId === "yaml") {
+				vscode.commands.executeCommand(
+					"vscode.openWith",
+					activeEditor.document.uri,
+					VisualYamlEditorProvider.viewType,
+				);
+			} else {
+				vscode.window.showInformationMessage(
+					"Open a YAML file first to use visual-yaml.",
+				);
+			}
+		}),
+	);
 }
 
 export function deactivate() {}

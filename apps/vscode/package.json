@@ -1,10 +1,10 @@
 {
-  "name": "@visual-json/vscode",
-  "displayName": "visual-json",
-  "description": "(Beta) Visual JSON editor with tree view, schema support, and search",
+  "name": "@visual-yaml/vscode",
+  "displayName": "visual-yaml",
+  "description": "(Beta) Visual YAML editor with tree view, schema support, and search",
   "version": "0.0.3",
   "license": "Apache-2.0",
-  "publisher": "visual-json",
+  "publisher": "visual-yaml",
   "private": true,
   "engines": {
     "vscode": "^1.85.0"
@@ -14,21 +14,21 @@
     "Visualization"
   ],
   "activationEvents": [
-    "onCustomEditor:visualJson.editor",
-    "onView:visualJson.panel"
+    "onCustomEditor:visualYaml.editor",
+    "onView:visualYaml.panel"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "customEditors": [
       {
-        "viewType": "visualJson.editor",
-        "displayName": "visual-json",
+        "viewType": "visualYaml.editor",
+        "displayName": "visual-yaml",
         "selector": [
           {
-            "filenamePattern": "*.json"
+            "filenamePattern": "*.yaml"
           },
           {
-            "filenamePattern": "*.jsonc"
+            "filenamePattern": "*.yml"
           }
         ],
         "priority": "option"
@@ -38,16 +38,16 @@
       "explorer": [
         {
           "type": "webview",
-          "id": "visualJson.panel",
-          "name": "visual-json",
-          "when": "resourceLangId == json || resourceLangId == jsonc"
+          "id": "visualYaml.panel",
+          "name": "visual-yaml",
+          "when": "resourceLangId == yaml"
         }
       ]
     },
     "commands": [
       {
-        "command": "visualJson.openWithVisualJson",
-        "title": "Open with visual-json"
+        "command": "visualYaml.openWithVisualYaml",
+        "title": "Open with visual-yaml"
       }
     ]
   },
@@ -55,14 +55,14 @@
     "build": "node esbuild.mjs --production",
     "dev": "node esbuild.mjs --watch",
     "check-types": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "package": "vsce package --no-dependencies"
   },
   "dependencies": {
-    "@visual-json/core": "workspace:*",
-    "@visual-json/react": "workspace:*",
-    "jsonc-parser": "^3.3.1"
+    "@visual-yaml/core": "workspace:*",
+    "@visual-yaml/react": "workspace:*",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",

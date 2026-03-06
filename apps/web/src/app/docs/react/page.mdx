@@ -2,24 +2,24 @@ export { metadata } from "./metadata";
 
 # React Components
 
-`@visual-json/react` provides a complete set of React components for building visual JSON
-editors. All components are designed to work together inside a `VisualJson` provider.
+`@visual-yaml/react` provides a complete set of React components for building visual JSON
+editors. All components are designed to work together inside a `VisualYaml` provider.
 
 ```bash
-npm install @visual-json/react @visual-json/core
+npm install @visual-yaml/react @visual-yaml/core
 ```
 
-## VisualJson
+## VisualYaml
 
 The root provider that manages tree state, selection, expansion, undo/redo, search, and schema.
 All other components must be rendered inside this provider.
 
 ```tsx
-import { VisualJson } from "@visual-json/react";
+import { VisualYaml } from "@visual-yaml/react";
 
-<VisualJson value={json} onChange={setJson} schema={schema}>
+<VisualYaml value={json} onChange={setJson} schema={schema}>
   {/* child components */}
-</VisualJson>
+</VisualYaml>
 ```
 
 <table>
@@ -27,9 +27,9 @@ import { VisualJson } from "@visual-json/react";
     <tr><th>Prop</th><th>Type</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>value</code></td><td><code>JsonValue</code></td><td>The JSON data to edit</td></tr>
-    <tr><td><code>onChange</code></td><td><code>(value: JsonValue) =&gt; void</code></td><td>Called when the data changes</td></tr>
-    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional JSON Schema for validation and form hints</td></tr>
+    <tr><td><code>value</code></td><td><code>YamlValue</code></td><td>The YAML data to edit</td></tr>
+    <tr><td><code>onChange</code></td><td><code>(value: YamlValue) =&gt; void</code></td><td>Called when the data changes</td></tr>
+    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Optional YAML schema for validation and form hints</td></tr>
     <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>Child components</td></tr>
   </tbody>
 </table>
@@ -40,7 +40,7 @@ Hierarchical tree with expand/collapse, drag-and-drop, keyboard navigation, and 
 context menus.
 
 ```tsx
-import { TreeView } from "@visual-json/react";
+import { TreeView } from "@visual-yaml/react";
 
 <TreeView className="h-full" />
 ```
@@ -56,19 +56,19 @@ Schema-aware form editor. Renders fields with descriptions, required indicators,
 enum dropdowns when a schema is provided.
 
 ```tsx
-import { FormView } from "@visual-json/react";
+import { FormView } from "@visual-yaml/react";
 
 <FormView className="p-4" />
 ```
 
 ## DiffView
 
-Side-by-side comparison of two JSON values with color-coded additions, removals, and changes.
+Side-by-side comparison of two YAML values with color-coded additions, removals, and changes.
 
 ```tsx
-import { DiffView } from "@visual-json/react";
+import { DiffView } from "@visual-yaml/react";
 
-<DiffView originalJson={original} currentJson={current} />
+<DiffView originalYaml={original} currentYaml={current} />
 ```
 
 <table>
@@ -76,8 +76,8 @@ import { DiffView } from "@visual-json/react";
     <tr><th>Prop</th><th>Type</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>originalJson</code></td><td><code>unknown</code></td><td>The original JSON value</td></tr>
-    <tr><td><code>currentJson</code></td><td><code>unknown</code></td><td>The current/modified JSON value</td></tr>
+    <tr><td><code>originalYaml</code></td><td><code>unknown</code></td><td>The original YAML value</td></tr>
+    <tr><td><code>currentYaml</code></td><td><code>unknown</code></td><td>The current/modified YAML value</td></tr>
     <tr><td><code>className</code></td><td><code>string</code></td><td>Optional CSS class</td></tr>
   </tbody>
 </table>
@@ -87,7 +87,7 @@ import { DiffView } from "@visual-json/react";
 Displays the path to the currently selected node as clickable breadcrumbs.
 
 ```tsx
-import { Breadcrumbs } from "@visual-json/react";
+import { Breadcrumbs } from "@visual-yaml/react";
 
 <Breadcrumbs className="px-2 py-1" />
 ```
@@ -97,7 +97,7 @@ import { Breadcrumbs } from "@visual-json/react";
 Search input with next/previous navigation. Supports `Cmd/Ctrl+F` to focus.
 
 ```tsx
-import { SearchBar } from "@visual-json/react";
+import { SearchBar } from "@visual-yaml/react";
 
 <SearchBar className="w-full" />
 ```
@@ -107,7 +107,7 @@ import { SearchBar } from "@visual-json/react";
 Rendered by TreeView on right-click. Can also be used standalone.
 
 ```tsx
-import { ContextMenu } from "@visual-json/react";
+import { ContextMenu } from "@visual-yaml/react";
 
 <ContextMenu
   x={100}
@@ -123,10 +123,10 @@ import { ContextMenu } from "@visual-json/react";
 
 ## useStudio Hook
 
-Access the full studio state and actions from any component inside `VisualJson`.
+Access the full studio state and actions from any component inside `VisualYaml`.
 
 ```tsx
-import { useStudio } from "@visual-json/react";
+import { useStudio } from "@visual-yaml/react";
 
 function MyComponent() {
   const { state, actions } = useStudio();
@@ -152,7 +152,7 @@ function MyComponent() {
     <tr><td><code>anchorNodeId</code></td><td><code>string | null</code></td><td>Anchor node for range selection</td></tr>
     <tr><td><code>drillDownNodeId</code></td><td><code>string | null</code></td><td>Node shown as root in the form view</td></tr>
     <tr><td><code>expandedNodeIds</code></td><td><code>Set&lt;string&gt;</code></td><td>Set of expanded node IDs</td></tr>
-    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Active JSON Schema</td></tr>
+    <tr><td><code>schema</code></td><td><code>JsonSchema | null</code></td><td>Active YAML schema</td></tr>
     <tr><td><code>searchQuery</code></td><td><code>string</code></td><td>Current search query</td></tr>
     <tr><td><code>searchMatches</code></td><td><code>SearchMatch[]</code></td><td>Search results</td></tr>
     <tr><td><code>searchMatchIndex</code></td><td><code>number</code></td><td>Index of the active match</td></tr>

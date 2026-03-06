@@ -12,12 +12,12 @@ export const maxDuration = 60;
 
 const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
-const SYSTEM_PROMPT = `You are a helpful documentation assistant for visual-json, a visual JSON editor with tree view, form view, diff view, and more.
+const SYSTEM_PROMPT = `You are a helpful documentation assistant for visual-yaml, a visual YAML editor with tree view, form view, diff view, and more.
 
-GitHub repository: https://github.com/vercel-labs/visual-json
-npm packages: @visual-json/core, @visual-json/react
+GitHub repository: https://github.com/vercel-labs/visual-yaml
+npm packages: @visual-yaml/core, @visual-yaml/react
 
-You have access to the full visual-json documentation via the bash and readFile tools. The docs are available as markdown files in the /workspace/ directory.
+You have access to the full visual-yaml documentation via the bash and readFile tools. The docs are available as markdown files in the /workspace/ directory.
 
 When answering questions:
 - Use the bash tool to list files (ls /workspace/) or search for content (grep -r "keyword" /workspace/)

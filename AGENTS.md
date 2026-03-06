@@ -29,13 +29,13 @@ Naming convention:
   <tbody>
     <tr>
       <td>Main web app</td>
-      <td><code>visual-json</code></td>
-      <td><code>http://visual-json.localhost:1355</code></td>
+      <td><code>visual-yaml</code></td>
+      <td><code>http://visual-yaml.localhost:1355</code></td>
     </tr>
     <tr>
       <td>Examples</td>
-      <td><code>[name]-example.visual-json</code></td>
-      <td><code>http://[name]-example.visual-json.localhost:1355</code></td>
+      <td><code>[name]-example.visual-yaml</code></td>
+      <td><code>http://[name]-example.visual-yaml.localhost:1355</code></td>
     </tr>
   </tbody>
 </table>
@@ -45,7 +45,7 @@ When adding a new example that runs a dev server, wrap its `dev` script with `po
 ```json
 {
   "scripts": {
-    "dev": "portless my-app-example.visual-json next dev --turbopack"
+    "dev": "portless my-app-example.visual-yaml next dev --turbopack"
   }
 }
 ```

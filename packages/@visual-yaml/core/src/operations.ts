@@ -1,0 +1,377 @@
+import { buildSubtree, getNodeType, reparentSubtree, toYaml } from "./tree";
+import type {
+	NodeType,
+	TreeNode,
+	TreeState,
+	YamlPrimitive,
+	YamlValue,
+} from "./types";
+import { stringifyYaml } from "./yaml-utils";
+
+function rebuildMap(root: TreeNode): Map<string, TreeNode> {
+	const map = new Map<string, TreeNode>();
+	function walk(node: TreeNode) {
+		map.set(node.id, node);
+		for (const child of node.children) walk(child);
+	}
+	walk(root);
+	return map;
+}
+
+function recomputePaths(node: TreeNode, newParentPath: string): TreeNode {
+	const newPath = newParentPath
+		? `${newParentPath}/${node.key}`
+		: `/${node.key}`;
+	if (node.path === newPath && node.children.length === 0) return node;
+	return {
+		...node,
+		path: newPath,
+		children: node.children.map((child) => recomputePaths(child, newPath)),
+	};
+}
+
+/**
+ * Clone only the ancestor chain from root to `targetId` (structural sharing),
+ * apply `updater` to the target, and rebuild the `nodesById` map.
+ */
+function clonePathToNode(
+	state: TreeState,
+	targetId: string,
+	updater: (node: TreeNode) => TreeNode,
+): TreeState {
+	const chain: string[] = [];
+	let cur: TreeNode | undefined = state.nodesById.get(targetId);
+	while (cur) {
+		chain.unshift(cur.id);
+		cur = cur.parentId ? state.nodesById.get(cur.parentId) : undefined;
+	}
+	if (chain.length === 0) return state;
+
+	function cloneAlongPath(node: TreeNode, depth: number): TreeNode {
+		if (depth === chain.length - 1) {
+			return updater(node);
+		}
+		const nextInChain = chain[depth + 1];
+		return {
+			...node,
+			children: node.children.map((child) =>
+				child.id === nextInChain ? cloneAlongPath(child, depth + 1) : child,
+			),
+		};
+	}
+
+	const newRoot = cloneAlongPath(state.root, 0);
+	return { root: newRoot, nodesById: rebuildMap(newRoot) };
+}
+
+function reindexArrayChildren(parent: TreeNode): TreeNode {
+	if (parent.type !== "array") return parent;
+	const parentPath = parent.path === "/" ? "" : parent.path;
+	return {
+		...parent,
+		children: parent.children.map((child, i) => {
+			const newKey = String(i);
+			if (child.key === newKey) return child;
+			return recomputePaths({ ...child, key: newKey }, parentPath);
+		}),
+	};
+}
+
+export function setValue(
+	state: TreeState,
+	nodeId: string,
+	value: YamlValue,
+): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node) return state;
+
+	const newType = getNodeType(value);
+
+	if (newType !== "object" && newType !== "array") {
+		return clonePathToNode(state, nodeId, (n) => ({
+			...n,
+			type: newType,
+			value: value as YamlPrimitive,
+			children: [],
+		}));
+	}
+
+	return clonePathToNode(state, nodeId, (n) => {
+		const parentPath = n.path.split("/").slice(0, -1).join("/") || "";
+		const nodesById = new Map<string, TreeNode>();
+		const subtree = buildSubtree(
+			n.key,
+			value,
+			parentPath,
+			n.parentId,
+			nodesById,
+		);
+		return { ...subtree, id: n.id };
+	});
+}
+
+export function setKey(
+	state: TreeState,
+	nodeId: string,
+	newKey: string,
+): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node || !node.parentId) return state;
+
+	const parent = state.nodesById.get(node.parentId);
+	if (!parent || parent.type !== "object") return state;
+
+	return clonePathToNode(state, nodeId, (n) => {
+		const parentPath = parent.path === "/" ? "" : parent.path;
+		const newPath = `${parentPath}/${newKey}`;
+		const updated: TreeNode = { ...n, key: newKey, path: newPath };
+		if (updated.children.length > 0) {
+			updated.children = updated.children.map((child) =>
+				recomputePaths(child, newPath),
+			);
+		}
+		return updated;
+	});
+}
+
+export function addProperty(
+	state: TreeState,
+	parentId: string,
+	key: string,
+	value: YamlValue,
+): TreeState {
+	const parent = state.nodesById.get(parentId);
+	if (!parent) return state;
+
+	return clonePathToNode(state, parentId, (p) => {
+		const parentPath = p.path === "/" ? "" : p.path;
+		const newChild = buildSubtree(key, value, parentPath, p.id, new Map());
+		return { ...p, children: [...p.children, newChild] };
+	});
+}
+
+export function insertProperty(
+	state: TreeState,
+	parentId: string,
+	key: string,
+	value: YamlValue,
+	index: number,
+): TreeState {
+	const parent = state.nodesById.get(parentId);
+	if (!parent) return state;
+
+	return clonePathToNode(state, parentId, (p) => {
+		const parentPath = p.path === "/" ? "" : p.path;
+		const newChild = buildSubtree(key, value, parentPath, p.id, new Map());
+		const newChildren = [...p.children];
+		newChildren.splice(index, 0, newChild);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+export function insertNode(
+	state: TreeState,
+	parentId: string,
+	node: TreeNode,
+	index: number,
+): TreeState {
+	const parent = state.nodesById.get(parentId);
+	if (!parent) return state;
+
+	return clonePathToNode(state, parentId, (p) => {
+		const parentPath = p.path === "/" ? "" : p.path;
+		const key = p.type === "array" ? String(index) : node.key;
+		const reparented = reparentSubtree(node, key, parentPath, p.id);
+		const newChildren = [...p.children];
+		newChildren.splice(index, 0, reparented);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+export function removeNode(state: TreeState, nodeId: string): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node || !node.parentId) return state;
+
+	return clonePathToNode(state, node.parentId, (p) => {
+		const newChildren = p.children.filter((c) => c.id !== nodeId);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+export function moveNode(
+	state: TreeState,
+	nodeId: string,
+	newParentId: string,
+	index?: number,
+): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node || !node.parentId) return state;
+
+	const srcParent = state.nodesById.get(node.parentId);
+	const dstParent = state.nodesById.get(newParentId);
+	if (!srcParent || !dstParent) return state;
+
+	const nodeValue = toYaml(node);
+
+	const removed = clonePathToNode(state, node.parentId, (p) => {
+		const newChildren = p.children.filter((c) => c.id !== nodeId);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+
+	return clonePathToNode(removed, newParentId, (p) => {
+		const parentPath = p.path === "/" ? "" : p.path;
+		const newChild = buildSubtree(
+			p.type === "array" ? String(index ?? p.children.length) : node.key,
+			nodeValue,
+			parentPath,
+			p.id,
+			new Map(),
+		);
+		const newChildren = [...p.children];
+		const insertAt = index ?? newChildren.length;
+		newChildren.splice(insertAt, 0, newChild);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+export function reorderChildren(
+	state: TreeState,
+	parentId: string,
+	fromIndex: number,
+	toIndex: number,
+): TreeState {
+	const parent = state.nodesById.get(parentId);
+	if (!parent) return state;
+
+	return clonePathToNode(state, parentId, (p) => {
+		const newChildren = [...p.children];
+		const removed = newChildren.splice(fromIndex, 1);
+		const item = removed[0];
+		if (!item) return p;
+		newChildren.splice(toIndex, 0, item);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+export function reorderChildrenMulti(
+	state: TreeState,
+	parentId: string,
+	movedIds: string[],
+	targetSiblingId: string,
+	position: "before" | "after",
+): TreeState {
+	const parent = state.nodesById.get(parentId);
+	if (!parent) return state;
+
+	const movedSet = new Set(movedIds);
+
+	return clonePathToNode(state, parentId, (p) => {
+		const remaining = p.children.filter((c) => !movedSet.has(c.id));
+		let insertIdx = remaining.findIndex((c) => c.id === targetSiblingId);
+		if (insertIdx === -1) {
+			if (movedSet.has(targetSiblingId)) {
+				const origIdx = p.children.findIndex((c) => c.id === targetSiblingId);
+				const origMap = new Map(p.children.map((c, i) => [c.id, i]));
+				if (position === "after") {
+					insertIdx = remaining.findIndex(
+						(c) => (origMap.get(c.id) ?? -1) > origIdx,
+					);
+					if (insertIdx === -1) insertIdx = remaining.length;
+				} else {
+					insertIdx = remaining.findIndex(
+						(c) => (origMap.get(c.id) ?? -1) >= origIdx,
+					);
+					if (insertIdx === -1) insertIdx = remaining.length;
+				}
+			} else {
+				insertIdx = position === "after" ? remaining.length : 0;
+			}
+		} else if (position === "after") {
+			insertIdx++;
+		}
+		const moved = movedIds
+			.map((id) => p.children.find((c) => c.id === id))
+			.filter((c): c is TreeNode => c !== undefined);
+		const newChildren = [...remaining];
+		newChildren.splice(insertIdx, 0, ...moved);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
+
+function convertValue(current: YamlValue, newType: NodeType): YamlValue {
+	switch (newType) {
+		case "string":
+			if (current === null || current === undefined) return "";
+			if (typeof current === "object") return stringifyYaml(current);
+			return String(current);
+		case "number": {
+			const n = Number(current);
+			return isNaN(n) ? 0 : n;
+		}
+		case "boolean":
+			return Boolean(current);
+		case "null":
+			return null;
+		case "object":
+			if (
+				current !== null &&
+				typeof current === "object" &&
+				!Array.isArray(current)
+			)
+				return current;
+			if (Array.isArray(current)) {
+				const obj: Record<string, YamlValue> = {};
+				current.forEach((item, i) => {
+					obj[String(i)] = item;
+				});
+				return obj;
+			}
+			return {};
+		case "array":
+			if (Array.isArray(current)) return current;
+			if (current !== null && typeof current === "object")
+				return Object.values(current);
+			return current === null || current === undefined ? [] : [current];
+		default:
+			return current;
+	}
+}
+
+export function changeType(
+	state: TreeState,
+	nodeId: string,
+	newType: NodeType,
+): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node) return state;
+
+	const currentValue = toYaml(node);
+	const newValue = convertValue(currentValue, newType);
+	return setValue(state, nodeId, newValue);
+}
+
+export function duplicateNode(state: TreeState, nodeId: string): TreeState {
+	const node = state.nodesById.get(nodeId);
+	if (!node || !node.parentId) return state;
+
+	const parent = state.nodesById.get(node.parentId);
+	if (!parent) return state;
+
+	const nodeValue = toYaml(node);
+
+	return clonePathToNode(state, node.parentId, (p) => {
+		const idx = p.children.findIndex((c) => c.id === nodeId);
+		const parentPath = p.path === "/" ? "" : p.path;
+		const newKey = p.type === "array" ? String(idx + 1) : `${node.key}_copy`;
+		const newChild = buildSubtree(
+			newKey,
+			structuredClone(nodeValue),
+			parentPath,
+			p.id,
+			new Map(),
+		);
+		const newChildren = [...p.children];
+		newChildren.splice(idx + 1, 0, newChild);
+		return reindexArrayChildren({ ...p, children: newChildren });
+	});
+}
