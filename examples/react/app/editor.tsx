@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { YamlValue, YamlSchema } from "@visual-yaml/core";
-import { resolveSchema } from "@visual-yaml/core";
+import { resolveSchema, parseYaml, stringifyYaml } from "@visual-yaml/core";
 import { YamlEditor, DiffView } from "@visual-yaml/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,8 +43,8 @@ const VIEW_MODES: { id: ViewMode; label: string }[] = [
 
 const samples: { name: string; filename: string; data: YamlValue }[] = [
   {
-    name: "package.json",
-    filename: "package.json",
+    name: "docker-compose.yaml",
+    filename: "docker-compose.yaml",
     data: {
       name: "my-app",
       version: "1.0.0",
@@ -70,7 +70,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
   },
   {
     name: "OpenAPI spec",
-    filename: "openapi.json",
+    filename: "openapi.yaml",
     data: {
       openapi: "3.1.0",
       info: {
@@ -114,7 +114,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
               "200": {
                 description: "A list of tasks",
                 content: {
-                  "application/json": {
+                  "application/yaml": {
                     schema: {
                       type: "array",
                       items: { $ref: "#/components/schemas/Task" },
@@ -131,7 +131,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
             requestBody: {
               required: true,
               content: {
-                "application/json": {
+                "application/yaml": {
                   schema: { $ref: "#/components/schemas/TaskInput" },
                 },
               },
@@ -140,7 +140,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
               "201": {
                 description: "Task created",
                 content: {
-                  "application/json": {
+                  "application/yaml": {
                     schema: { $ref: "#/components/schemas/Task" },
                   },
                 },
@@ -166,7 +166,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
               "200": {
                 description: "Task details",
                 content: {
-                  "application/json": {
+                  "application/yaml": {
                     schema: { $ref: "#/components/schemas/Task" },
                   },
                 },
@@ -189,7 +189,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
             requestBody: {
               required: true,
               content: {
-                "application/json": {
+                "application/yaml": {
                   schema: { $ref: "#/components/schemas/TaskInput" },
                 },
               },
@@ -198,7 +198,7 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
               "200": {
                 description: "Task updated",
                 content: {
-                  "application/json": {
+                  "application/yaml": {
                     schema: { $ref: "#/components/schemas/Task" },
                   },
                 },
@@ -271,8 +271,8 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
     },
   },
   {
-    name: "json-render spec",
-    filename: "spec.json",
+    name: "yaml-render spec",
+    filename: "spec.yaml",
     data: {
       root: "card_1",
       elements: {
@@ -315,8 +315,8 @@ const samples: { name: string; filename: string; data: YamlValue }[] = [
     },
   },
   {
-    name: "json-render (nested)",
-    filename: "dashboard.json",
+    name: "yaml-render (nested)",
+    filename: "dashboard.yaml",
     data: {
       type: "Stack",
       props: { direction: "vertical", gap: "lg" },
@@ -469,12 +469,12 @@ export function Editor({
 }: {
   defaultSidebarOpen: boolean;
 }) {
-  const [activeSample, setActiveSample] = useState(samples[0].filename);
-  const [yamlValue, setYamlValue] = useState<YamlValue>(samples[0].data);
+  const [activeSample, setActiveSample] = useState(samples[0]!.filename);
+  const [yamlValue, setYamlValue] = useState<YamlValue>(samples[0]!.data);
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [schema, setSchema] = useState<YamlSchema | null>(null);
-  const [filename, setFilename] = useState(samples[0].filename);
-  const [originalJson, setOriginalJson] = useState<YamlValue>(samples[0].data);
+  const [filename, setFilename] = useState(samples[0]!.filename);
+  const [originalJson, setOriginalJson] = useState<YamlValue>(samples[0]!.data);
   const [isDragOver, setIsDragOver] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
   const [treeShowValues, setTreeShowValues] = useState(false);
@@ -482,7 +482,7 @@ export function Editor({
   const [editorShowDescriptions, setEditorShowDescriptions] = useState(false);
   const [editorShowCounts, setEditorShowCounts] = useState(false);
   const [rawText, setRawText] = useState(
-    JSON.stringify(samples[0].data, null, 2),
+    stringifyYaml(samples[0]!.data),
   );
   const [rawError, setRawError] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -501,19 +501,19 @@ export function Editor({
     };
   }, [filename, yamlValue]);
 
-  const loadJson = useCallback((text: string, fname: string) => {
+  const loadYaml = useCallback((text: string, fname: string) => {
     try {
-      const parsed = JSON.parse(text);
+      const parsed = parseYaml(text);
       setYamlValue(parsed);
       setOriginalJson(structuredClone(parsed));
       setFilename(fname);
       setActiveSample(fname);
       setSchema(null);
-      setRawText(JSON.stringify(parsed, null, 2));
+      setRawText(stringifyYaml(parsed));
       setRawError(null);
       setParseError(null);
     } catch {
-      setParseError("Invalid JSON");
+      setParseError("Invalid YAML");
     }
   }, []);
 
@@ -525,7 +525,7 @@ export function Editor({
       setYamlValue(sample.data);
       setOriginalJson(structuredClone(sample.data));
       setSchema(null);
-      setRawText(JSON.stringify(sample.data, null, 2));
+      setRawText(stringifyYaml(sample.data));
       setRawError(null);
     }
   }, []);
@@ -533,24 +533,24 @@ export function Editor({
   const handlePaste = useCallback(async () => {
     try {
       const text = await navigator.clipboard.readText();
-      loadJson(text, "pasted.json");
+      loadYaml(text, "pasted.yaml");
     } catch {
       setPasteText("");
       setPasteDialogOpen(true);
     }
-  }, [loadJson]);
+  }, [loadYaml]);
 
   const handlePasteSubmit = useCallback(() => {
     if (pasteText.trim()) {
-      loadJson(pasteText, "pasted.json");
+      loadYaml(pasteText, "pasted.yaml");
     }
     setPasteDialogOpen(false);
     setPasteText("");
-  }, [pasteText, loadJson]);
+  }, [pasteText, loadYaml]);
 
   const handleDownload = useCallback(() => {
-    const text = JSON.stringify(yamlValue, null, 2);
-    const blob = new Blob([text], { type: "application/json" });
+    const text = stringifyYaml(yamlValue);
+    const blob = new Blob([text], { type: "application/yaml" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -559,20 +559,20 @@ export function Editor({
     URL.revokeObjectURL(url);
   }, [yamlValue, filename]);
 
-  const handleCopyJson = useCallback(async () => {
+  const handleCopyYaml = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(yamlValue, null, 2));
+      await navigator.clipboard.writeText(stringifyYaml(yamlValue));
     } catch {}
   }, [yamlValue]);
 
   const handleRawChange = useCallback((newText: string) => {
     setRawText(newText);
     try {
-      const parsed = JSON.parse(newText);
+      const parsed = parseYaml(newText);
       setRawError(null);
       setYamlValue(parsed);
     } catch (e) {
-      setRawError(e instanceof Error ? e.message : "Invalid JSON");
+      setRawError(e instanceof Error ? e.message : "Invalid YAML");
     }
   }, []);
 
@@ -599,7 +599,7 @@ export function Editor({
         const reader = new FileReader();
         reader.onload = () => {
           if (typeof reader.result === "string")
-            loadJson(reader.result, file.name);
+            loadYaml(reader.result, file.name);
         };
         reader.readAsText(file);
       }
@@ -612,7 +612,7 @@ export function Editor({
       el.removeEventListener("dragleave", handleDragLeave);
       el.removeEventListener("drop", handleDrop);
     };
-  }, [loadJson]);
+  }, [loadYaml]);
 
   return (
     <div ref={dropRef} className="flex flex-col h-screen relative">
@@ -620,7 +620,7 @@ export function Editor({
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 pointer-events-none">
           <div className="border-2 border-dashed border-primary rounded-lg p-8">
             <span className="text-foreground text-lg font-mono">
-              Drop JSON file here
+              Drop YAML file here
             </span>
           </div>
         </div>
@@ -654,7 +654,7 @@ export function Editor({
           <SelectTrigger size="sm" className="text-xs">
             <span data-slot="select-value">
               {samples.find((s) => s.filename === activeSample)?.name ??
-                samples[0].name}
+                samples[0]!.name}
             </span>
           </SelectTrigger>
           <SelectContent position="popper">
@@ -668,14 +668,14 @@ export function Editor({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".json,.jsonc,.json5"
+          accept=".yaml,.yml"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
               const reader = new FileReader();
               reader.onload = () => {
                 if (typeof reader.result === "string")
-                  loadJson(reader.result, file.name);
+                  loadYaml(reader.result, file.name);
               };
               reader.readAsText(file);
             }
@@ -699,7 +699,7 @@ export function Editor({
             size="icon"
             className="h-7 w-7"
             onClick={handlePaste}
-            title="Paste JSON"
+            title="Paste YAML"
           >
             <ClipboardPaste className="h-3.5 w-3.5" />
           </Button>
@@ -716,8 +716,8 @@ export function Editor({
             variant="ghost"
             size="icon"
             className="h-7 w-7"
-            onClick={handleCopyJson}
-            title="Copy JSON"
+            onClick={handleCopyYaml}
+            title="Copy YAML"
           >
             <Copy className="h-3.5 w-3.5" />
           </Button>
@@ -852,7 +852,7 @@ export function Editor({
       <Dialog open={pasteDialogOpen} onOpenChange={setPasteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Paste JSON</DialogTitle>
+            <DialogTitle>Paste YAML</DialogTitle>
           </DialogHeader>
           <textarea
             value={pasteText}

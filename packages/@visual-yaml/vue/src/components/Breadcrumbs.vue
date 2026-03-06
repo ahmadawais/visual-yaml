@@ -95,7 +95,7 @@ function handleKeyDown(e: KeyboardEvent) {
         suggestions.value.length > 0 &&
         highlightIndex.value < suggestions.value.length
       ) {
-        navigateTo(suggestions.value[highlightIndex.value].path);
+        navigateTo(suggestions.value[highlightIndex.value]!.path);
       } else {
         navigateTo(inputValue.value.trim() || "/");
       }

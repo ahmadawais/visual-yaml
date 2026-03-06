@@ -37,7 +37,7 @@ export function computeRangeIds(
   const end = Math.max(anchorIdx, targetIdx);
   const ids = new Set<string>();
   for (let i = start; i <= end; i++) {
-    ids.add(visibleNodes[i].id);
+    ids.add(visibleNodes[i]!.id);
   }
   return ids;
 }
@@ -71,7 +71,7 @@ export function deleteSelectedNodes(
 
   let nextFocusId: string | null = null;
   for (let i = firstDeletedIdx; i < visibleNodes.length; i++) {
-    const id = visibleNodes[i].id;
+    const id = visibleNodes[i]!.id;
     if (!selectedIds.has(id) && newTree.nodesById.has(id)) {
       nextFocusId = id;
       break;
@@ -79,7 +79,7 @@ export function deleteSelectedNodes(
   }
   if (!nextFocusId) {
     for (let i = firstDeletedIdx - 1; i >= 0; i--) {
-      const id = visibleNodes[i].id;
+      const id = visibleNodes[i]!.id;
       if (!selectedIds.has(id) && newTree.nodesById.has(id)) {
         nextFocusId = id;
         break;

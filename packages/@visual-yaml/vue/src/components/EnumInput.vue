@@ -83,7 +83,7 @@ function handleKeyDown(e: KeyboardEvent) {
         suggestions.value.length > 0 &&
         highlightIndex.value < suggestions.value.length
       ) {
-        selectValue(suggestions.value[highlightIndex.value]);
+        selectValue(suggestions.value[highlightIndex.value]!);
       }
       break;
     case "Escape":

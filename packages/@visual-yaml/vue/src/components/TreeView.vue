@@ -193,7 +193,7 @@ function handleKeyDown(e: KeyboardEvent) {
         if (!state.expandedNodeIds.value.has(node.id)) {
           actions.expandNode(node.id);
         } else if (node.children.length > 0) {
-          actions.selectNode(node.children[0].id);
+          actions.selectNode(node.children[0]!.id);
         }
       }
       break;

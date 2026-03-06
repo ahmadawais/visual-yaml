@@ -183,8 +183,8 @@ function handleKeyDown(e: KeyboardEvent) {
           next.delete(node.id);
           collapsedIds.value = next;
         } else if (node.children.length > 0) {
-          actions.selectNode(node.children[0].id);
-          scrollToNode(node.children[0].id);
+          actions.selectNode(node.children[0]!.id);
+          scrollToNode(node.children[0]!.id);
         }
       }
       break;

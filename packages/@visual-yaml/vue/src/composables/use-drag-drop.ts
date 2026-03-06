@@ -48,7 +48,7 @@ export function useDragDrop(
     if (position === "before") {
       const idx = visibleNodes.value.findIndex((n) => n.id === nodeId);
       if (idx > 0) {
-        rawDragOver(visibleNodes.value[idx - 1].id, "after");
+        rawDragOver(visibleNodes.value[idx - 1]!.id, "after");
         return;
       }
     }

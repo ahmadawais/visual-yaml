@@ -267,14 +267,14 @@ const actions: StudioActions = {
       const next = new Set(expandedNodeIds.value);
       for (const id of ancestors) next.add(id);
       expandedNodeIds.value = next;
-      focusSelectAndDrillDown(matches[0].nodeId);
+      focusSelectAndDrillDown(matches[0]!.nodeId);
     }
   },
   nextSearchMatch() {
     if (searchMatches.value.length === 0) return;
     const nextIdx = (searchMatchIndex.value + 1) % searchMatches.value.length;
     searchMatchIndex.value = nextIdx;
-    focusSelectAndDrillDown(searchMatches.value[nextIdx].nodeId);
+    focusSelectAndDrillDown(searchMatches.value[nextIdx]!.nodeId);
   },
   prevSearchMatch() {
     if (searchMatches.value.length === 0) return;
@@ -282,7 +282,7 @@ const actions: StudioActions = {
       (searchMatchIndex.value - 1 + searchMatches.value.length) %
       searchMatches.value.length;
     searchMatchIndex.value = prevIdx;
-    focusSelectAndDrillDown(searchMatches.value[prevIdx].nodeId);
+    focusSelectAndDrillDown(searchMatches.value[prevIdx]!.nodeId);
   },
 };
 
